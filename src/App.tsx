@@ -19,9 +19,10 @@ import {
 } from 'lucide-react'
 import { BrandMark } from './components/BrandMark'
 import { SectionHeading } from './components/SectionHeading'
-import { missionStages, navItems, partnerSlots, ruleGroups } from './data'
+import { navItems, partnerSlots, ruleGroups } from './data'
 import { committeeLeadership, committeeTeams } from './data/committee'
 import { archiveEvents, archiveItems } from './data/archive'
+import { competitionInfo, journeyStages } from './data/competition'
 
 function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; tone?: 'placeholder' | 'live' }) {
   return <span className={`status-pill status-pill--${tone}`}><span />{children}</span>
@@ -133,11 +134,11 @@ function App() {
             <div className="section-topline"><div className="section-index">02 <span>/</span> TIMELINE</div><StatusPill>Official dates pending</StatusPill></div>
             <div className="split-heading"><SectionHeading eyebrow="Mission timeline" title="Every great solve has a sequence." copy="A clear route from first signal to final debrief. Dates and milestones stay marked as placeholders until the official schedule is released." /><div className="telemetry"><Activity size={17} /><span>Telemetry / static</span><strong>03.0</strong></div></div>
             <div className="timeline-list">
-              {missionStages.map((stage, index) => <article className={`timeline-item${index === 2 ? ' timeline-item--active' : ''}`} key={stage.index}>
+              {journeyStages.map((stage) => <article className={`timeline-item${stage.state === 'verified' ? ' timeline-item--active' : ''}`} key={stage.index}>
                 <div className="timeline-item__marker"><span>{stage.index}</span><i /></div>
                 <div className="timeline-item__label">{stage.label}</div>
                 <div className="timeline-item__copy"><h3>{stage.title}</h3><p>{stage.detail}</p></div>
-                <StatusPill tone={stage.state === 'verified' ? 'live' : 'placeholder'}>{stage.state === 'verified' ? 'Confirmed' : 'Placeholder'}</StatusPill>
+                <StatusPill tone={stage.state === 'verified' ? 'live' : 'placeholder'}>{stage.state === 'verified' ? 'Verified' : 'Pending'}</StatusPill>
               </article>)}
             </div>
           </div>
@@ -147,6 +148,7 @@ function App() {
           <div className="shell-width">
             <div className="section-topline"><div className="section-index">03 <span>/</span> RULES</div><div className="section-topline__aside"><ShieldCheck size={16} /> No invented rules</div></div>
             <div className="rules-heading"><SectionHeading eyebrow="Competition protocol" title="Precision over noise." copy="The rules module is ready for the official brief. Until then, these placeholders make missing information visible instead of filling the gaps with guesses." /><div className="rules-orb"><div><Code2 size={25} /><span>RULESET<br />PENDING</span></div></div></div>
+            <div className="competition-info" aria-label="Competition information"><div className="competition-info__intro"><span className="competition-info__kicker"><Radio size={14} /> Mission dossier</span><h3>Know what is confirmed.</h3><p>One verified signal, with every missing detail left visible until the official brief arrives.</p></div><div className="competition-info__grid">{competitionInfo.map((field) => <div className={`competition-info__field competition-info__field--${field.state}`} key={field.label}><div><span>{field.label}</span><StatusPill tone={field.state === 'verified' ? 'live' : 'placeholder'}>{field.state === 'verified' ? 'Verified' : 'Pending'}</StatusPill></div><strong>{field.value}</strong><small>{field.note}</small></div>)}</div></div>
             <div className="rule-grid">
               {ruleGroups.map((group) => <article className="rule-card" key={group.number}>
                 <div className="rule-card__top"><span className="rule-card__number">{group.number}</span><StatusPill>Placeholder</StatusPill></div>
