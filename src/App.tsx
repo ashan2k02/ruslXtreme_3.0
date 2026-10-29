@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import {
   Activity,
   ArrowDown,
@@ -28,16 +28,33 @@ function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; t
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeGallery, setActiveGallery] = useState<number | null>(null)
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null)
+  const galleryTriggerRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setActiveGallery(null)
+      if (event.key === 'Escape' && activeGallery !== null) {
+        setActiveGallery(null)
+        requestAnimationFrame(() => galleryTriggerRef.current?.focus())
+      }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [activeGallery])
+
+  useEffect(() => {
+    if (activeGallery !== null) lightboxCloseRef.current?.focus()
+  }, [activeGallery])
 
   const closeMobile = () => setMobileOpen(false)
+  const openGallery = (index: number, event: MouseEvent<HTMLButtonElement>) => {
+    galleryTriggerRef.current = event.currentTarget
+    setActiveGallery(index)
+  }
+  const closeGallery = () => {
+    setActiveGallery(null)
+    requestAnimationFrame(() => galleryTriggerRef.current?.focus())
+  }
   const scrollTo = (event: MouseEvent<HTMLAnchorElement>) => {
     const href = event.currentTarget.getAttribute('href')
     if (href?.startsWith('#')) {
@@ -52,11 +69,11 @@ function App() {
       <header className="site-header">
         <div className="shell-width site-header__inner">
           <BrandMark />
-          <nav className={`site-nav${mobileOpen ? ' site-nav--open' : ''}`} aria-label="Primary navigation">
+          <nav className={`site-nav${mobileOpen ? ' site-nav--open' : ''}`} id="primary-navigation" aria-label="Primary navigation">
             {navItems.map((item) => <a key={item.href} href={item.href} onClick={scrollTo}><span>{item.section}</span>{item.label}</a>)}
             <a className="site-nav__cta" href="#contact" onClick={scrollTo}>Contact <ArrowUpRight size={15} /></a>
           </nav>
-          <button className="icon-button menu-button" type="button" aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} onClick={() => setMobileOpen((open) => !open)}>
+          <button className="icon-button menu-button" type="button" aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={mobileOpen} aria-controls="primary-navigation" onClick={() => setMobileOpen((open) => !open)}>
             {mobileOpen ? <X size={21} /> : <Menu size={21} />}
           </button>
         </div>
@@ -166,7 +183,7 @@ function App() {
           <div className="shell-width">
             <div className="section-topline"><div className="section-index">06 <span>/</span> ARCHIVE</div><div className="section-topline__aside"><ImageIcon size={16} /> Local documented assets</div></div>
             <div className="gallery-heading"><SectionHeading eyebrow="Previous editions" title="Signals from the archive." copy="A visual archive can hold the energy of the event before the next signal arrives. These local abstract assets are clearly labeled placeholders, ready to be replaced with verified edition photography." /><div className="gallery-heading__index">04<br /><span>FRAMES</span></div></div>
-            <div className="gallery-grid">{galleryItems.map((item, index) => <button className={`gallery-card gallery-card--${index + 1}`} type="button" key={item.title} onClick={() => setActiveGallery(index)} aria-label={`Open ${item.title} gallery image`}><img src={item.image} alt={item.alt} /><span className="gallery-card__overlay" /><span className="gallery-card__meta"><span>{item.label}</span><strong>{item.title}</strong></span><span className="gallery-card__open"><ArrowUpRight size={17} /></span></button>)}</div>
+            <div className="gallery-grid">{galleryItems.map((item, index) => <button className={`gallery-card gallery-card--${index + 1}`} type="button" key={item.title} onClick={(event) => openGallery(index, event)} aria-label={`Open ${item.title} gallery image`}><img src={item.image} alt={item.alt} /><span className="gallery-card__overlay" /><span className="gallery-card__meta"><span>{item.label}</span><strong>{item.title}</strong></span><span className="gallery-card__open"><ArrowUpRight size={17} /></span></button>)}</div>
           </div>
         </section>
 
@@ -187,7 +204,7 @@ function App() {
 
       <footer className="site-footer"><div className="shell-width site-footer__inner"><BrandMark compact /><p>RUSLXTREME 3.0 — Think. Code. Conquer.</p><div className="footer-links"><a href="#about" onClick={scrollTo}>Mission</a><a href="#gallery" onClick={scrollTo}>Archive</a><a href="#contact" onClick={scrollTo}>Contact</a></div><div className="footer-socials"><a href="#contact" aria-label="Visual archive placeholder" onClick={scrollTo}><ImageIcon size={16} /></a><a href="#contact" aria-label="Community placeholder" onClick={scrollTo}><Users size={16} /></a><a href="#contact" aria-label="Code community placeholder" onClick={scrollTo}><Code2 size={16} /></a></div></div><div className="shell-width site-footer__bottom"><span>Organized by the IEEE Student Branch of Rajarata University of Sri Lanka.</span><span>Frontend mission brief / 2026</span></div></footer>
 
-      {activeGallery !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${galleryItems[activeGallery].title} gallery image`} onClick={() => setActiveGallery(null)}><button type="button" className="lightbox__close icon-button" aria-label="Close gallery image" onClick={() => setActiveGallery(null)}><X size={20} /></button><figure onClick={(event) => event.stopPropagation()}><img src={galleryItems[activeGallery].image} alt={galleryItems[activeGallery].alt} /><figcaption><span>{galleryItems[activeGallery].label}</span><strong>{galleryItems[activeGallery].title}</strong></figcaption></figure></div>}
+      {activeGallery !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${galleryItems[activeGallery].title} gallery image`} onClick={closeGallery}><button ref={lightboxCloseRef} type="button" className="lightbox__close icon-button" aria-label="Close gallery image" onClick={closeGallery}><X size={20} /></button><figure onClick={(event) => event.stopPropagation()}><img src={galleryItems[activeGallery].image} alt={galleryItems[activeGallery].alt} /><figcaption><span>{galleryItems[activeGallery].label}</span><strong>{galleryItems[activeGallery].title}</strong></figcaption></figure></div>}
     </div>
   )
 }
