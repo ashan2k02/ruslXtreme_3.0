@@ -19,10 +19,11 @@ import {
 } from 'lucide-react'
 import { BrandMark } from './components/BrandMark'
 import { SectionHeading } from './components/SectionHeading'
-import { navItems, partnerSlots, ruleGroups } from './data'
+import { navItems, ruleGroups } from './data'
 import { committeeLeadership, committeeTeams } from './data/committee'
 import { archiveEvents, archiveItems } from './data/archive'
 import { competitionInfo, journeyStages } from './data/competition'
+import { faqItems, sponsorSlots } from './data/community'
 
 function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; tone?: 'placeholder' | 'live' }) {
   return <span className={`status-pill status-pill--${tone}`}><span />{children}</span>
@@ -31,6 +32,7 @@ function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; t
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeGallery, setActiveGallery] = useState<number | null>(null)
+  const [openFaq, setOpenFaq] = useState<string | null>(faqItems[0].id)
   const lightboxCloseRef = useRef<HTMLButtonElement>(null)
   const galleryTriggerRef = useRef<HTMLButtonElement>(null)
 
@@ -198,17 +200,25 @@ function App() {
           </div>
         </section>
 
+        <section className="section section--faq" id="faq">
+          <div className="shell-width faq-layout">
+            <div><div className="section-index">07 <span>/</span> FAQ</div><SectionHeading eyebrow="Frequently asked" title="Clear answers. No assumptions." copy="A concise briefing for the questions visitors are most likely to have. Verified information is separated from details still awaiting the official announcement." /></div>
+            <div className="faq-list">{faqItems.map((item, index) => { const isOpen = openFaq === item.id; return <article className={`faq-item${isOpen ? ' faq-item--open' : ''}`} key={item.id}><h3><button type="button" aria-expanded={isOpen} aria-controls={`faq-answer-${item.id}`} onClick={() => setOpenFaq(isOpen ? null : item.id)}><span className="faq-item__number">0{index + 1}</span><span>{item.question}</span><ChevronRight size={17} aria-hidden="true" /></button></h3><div className="faq-item__answer" id={`faq-answer-${item.id}`} hidden={!isOpen}><p>{item.answer}</p><span><span className={`faq-item__dot faq-item__dot--${item.verified ? 'verified' : 'pending'}`} />{item.verified ? 'Verified project information' : 'Pending official information'}</span></div></article> })}</div>
+          </div>
+        </section>
+
         <section className="section section--partners" id="partners">
-          <div className="shell-width partners-layout">
-            <div><div className="section-index">07 <span>/</span> ALLIES</div><SectionHeading eyebrow="Sponsors & partners" title="Good work travels farther together." copy="Verified organizations will be listed here as official partnerships are confirmed. No sponsor names or logos have been invented." /><a className="button button--ghost" href="#contact" onClick={scrollTo}>Partner with the mission <ArrowUpRight size={16} /></a></div>
-            <div className="partner-stack">{partnerSlots.map((partner, index) => <div className="partner-row" key={partner.label}><span className="partner-row__num">0{index + 1}</span><div className="partner-row__logo"><Layers3 size={17} /><strong>{partner.name}</strong></div><span className="partner-row__label">{partner.label}</span><StatusPill>Pending</StatusPill></div>)}</div>
+          <div className="shell-width partners-showcase">
+            <div className="section-topline"><div className="section-index">08 <span>/</span> ALLIES</div><StatusPill>Official partners pending</StatusPill></div>
+            <div className="partners-showcase__heading"><SectionHeading eyebrow="Sponsors & partners" title="Good work travels farther together." copy="This showcase is ready for official sponsor tiers, names, logos, and verified links. Until then, it stays intentionally neutral—no company is presented as a confirmed partner." /><div className="partners-showcase__mark"><Layers3 size={29} /><span>UPLINK<br />PENDING</span></div></div>
+            <div className="sponsor-grid">{sponsorSlots.map((slot) => <article className="sponsor-card" key={slot.id}><div className="sponsor-card__top"><span>{slot.tier}</span><StatusPill>Pending</StatusPill></div><div className="sponsor-card__logo"><Layers3 size={25} /><span>LOGO<br />PENDING</span></div><div><span className="sponsor-card__category">{slot.category}</span><h3>{slot.name}</h3></div><span className="sponsor-card__note">Official name, logo, and website to be announced.</span></article>)}</div>
           </div>
         </section>
 
         <section className="section section--contact" id="contact">
           <div className="shell-width contact-card">
             <div className="contact-card__visual"><div className="contact-card__grid" /><div className="contact-card__planet" /><span className="contact-card__tag">Open channel / RUSLXTREME 3.0</span><div className="contact-card__code">STATUS: <strong>AWAITING UPLINK</strong><br />ORIGIN: <strong>RAJARATA / LK</strong><br />MODE: <strong>MISSION CONTROL</strong></div></div>
-            <div className="contact-card__copy"><div className="section-index">08 <span>/</span> CONTACT</div><SectionHeading eyebrow="Open a channel" title="Have an official update? Send it through." copy="Contact channels were not included in the supplied brief. This space is intentionally ready for the verified organizer email, social links, venue details, and other official updates." /><div className="contact-actions"><span className="button button--primary button--disabled" role="status">Official email pending <Mail size={16} /></span><a className="text-link" href="#home" onClick={scrollTo}>Return to mission start <ArrowUpRight size={15} /></a></div></div>
+            <div className="contact-card__copy"><div className="section-index">09 <span>/</span> CONTACT</div><SectionHeading eyebrow="Open a channel" title="Have an official update? Send it through." copy="Contact channels were not included in the supplied brief. This space is intentionally ready for the verified organizer email, social links, venue details, and other official updates." /><div className="contact-actions"><span className="button button--primary button--disabled" role="status">Official email pending <Mail size={16} /></span><a className="text-link" href="#home" onClick={scrollTo}>Return to mission start <ArrowUpRight size={15} /></a></div></div>
           </div>
         </section>
       </main>
