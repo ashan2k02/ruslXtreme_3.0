@@ -19,8 +19,9 @@ import {
 } from 'lucide-react'
 import { BrandMark } from './components/BrandMark'
 import { SectionHeading } from './components/SectionHeading'
-import { galleryItems, missionStages, navItems, partnerSlots, ruleGroups } from './data'
+import { missionStages, navItems, partnerSlots, ruleGroups } from './data'
 import { committeeLeadership, committeeTeams } from './data/committee'
+import { archiveEvents, archiveItems } from './data/archive'
 
 function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; tone?: 'placeholder' | 'live' }) {
   return <span className={`status-pill status-pill--${tone}`}><span />{children}</span>
@@ -188,9 +189,10 @@ function App() {
 
         <section className="section section--gallery" id="gallery">
           <div className="shell-width">
-            <div className="section-topline"><div className="section-index">06 <span>/</span> ARCHIVE</div><div className="section-topline__aside"><ImageIcon size={16} /> Local documented assets</div></div>
-            <div className="gallery-heading"><SectionHeading eyebrow="Previous editions" title="Signals from the archive." copy="A visual archive can hold the energy of the event before the next signal arrives. These local abstract assets are clearly labeled placeholders, ready to be replaced with verified edition photography." /><div className="gallery-heading__index">04<br /><span>FRAMES</span></div></div>
-            <div className="gallery-grid">{galleryItems.map((item, index) => <button className={`gallery-card gallery-card--${index + 1}`} type="button" key={item.title} onClick={(event) => openGallery(index, event)} aria-label={`Open ${item.title} gallery image`}><img src={item.image} alt={item.alt} /><span className="gallery-card__overlay" /><span className="gallery-card__meta"><span>{item.label}</span><strong>{item.title}</strong></span><span className="gallery-card__open"><ArrowUpRight size={17} /></span></button>)}</div>
+            <div className="section-topline"><div className="section-index">06 <span>/</span> ARCHIVE</div><div className="section-topline__aside"><ImageIcon size={16} /> Local illustrative archive</div></div>
+            <div className="gallery-heading"><SectionHeading eyebrow="Past events & memories" title="Every challenge leaves a legacy." copy="The archive celebrates the spirit of RUSLXTREME across its event chapters. Authentic photography and verified history will replace these clearly labeled demo visuals when supplied by the organizers." /><div className="gallery-heading__index">03<br /><span>CHAPTERS</span></div></div>
+            <div className="archive-demo-note"><span className="signal-dot" /> ILLUSTRATIVE DEMO ARCHIVE <span>Artwork is not authentic event photography.</span></div>
+            <div className="archive-events">{archiveEvents.map((event) => <section className="archive-event" key={event.id} aria-labelledby={`archive-${event.id}`}><div className="archive-event__heading"><div><span className="archive-event__status">{event.status}</span><h3 id={`archive-${event.id}`}>{event.name}</h3></div><p>{event.description}</p></div><div className="archive-event__grid">{event.items.map((item) => { const index = archiveItems.findIndex((archiveItem) => archiveItem.id === item.id); return <button className={`archive-card${item.featured ? ' archive-card--featured' : ''}`} type="button" key={item.id} onClick={(event) => openGallery(index, event)} aria-label={`Open ${event.name} ${item.title} image`}><img src={item.image} alt={item.alt} /><span className="gallery-card__overlay" /><span className="gallery-card__meta"><span>{item.label}</span><strong>{item.title}</strong></span><span className="gallery-card__open"><ArrowUpRight size={17} /></span></button> })}</div></section>)}</div>
           </div>
         </section>
 
@@ -211,7 +213,7 @@ function App() {
 
       <footer className="site-footer"><div className="shell-width site-footer__inner"><BrandMark compact /><p>RUSLXTREME 3.0 — Think. Code. Conquer.</p><div className="footer-links"><a href="#about" onClick={scrollTo}>Mission</a><a href="#gallery" onClick={scrollTo}>Archive</a><a href="#contact" onClick={scrollTo}>Contact</a></div><div className="footer-socials"><a href="#contact" aria-label="Visual archive placeholder" onClick={scrollTo}><ImageIcon size={16} /></a><a href="#contact" aria-label="Community placeholder" onClick={scrollTo}><Users size={16} /></a><a href="#contact" aria-label="Code community placeholder" onClick={scrollTo}><Code2 size={16} /></a></div></div><div className="shell-width site-footer__bottom"><span>Organized by the IEEE Student Branch of Rajarata University of Sri Lanka.</span><span>Frontend mission brief / 2026</span></div></footer>
 
-      {activeGallery !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${galleryItems[activeGallery].title} gallery image`} onClick={closeGallery}><button ref={lightboxCloseRef} type="button" className="lightbox__close icon-button" aria-label="Close gallery image" onClick={closeGallery}><X size={20} /></button><figure onClick={(event) => event.stopPropagation()}><img src={galleryItems[activeGallery].image} alt={galleryItems[activeGallery].alt} /><figcaption><span>{galleryItems[activeGallery].label}</span><strong>{galleryItems[activeGallery].title}</strong></figcaption></figure></div>}
+      {activeGallery !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${archiveItems[activeGallery].title} gallery image`} onClick={closeGallery}><button ref={lightboxCloseRef} type="button" className="lightbox__close icon-button" aria-label="Close gallery image" onClick={closeGallery}><X size={20} /></button><figure onClick={(event) => event.stopPropagation()}><img src={archiveItems[activeGallery].image} alt={archiveItems[activeGallery].alt} /><figcaption><span>{archiveItems[activeGallery].label}</span><strong>{archiveItems[activeGallery].title}</strong></figcaption></figure></div>}
     </div>
   )
 }

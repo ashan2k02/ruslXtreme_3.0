@@ -29,13 +29,6 @@ export interface CommitteeMember {
   state: DataState
 }
 
-export interface GalleryItem {
-  title: string
-  label: string
-  image: string
-  alt: string
-}
-
 export const navItems: NavItem[] = [
   { label: 'Mission', href: '#about', section: '01' },
   { label: 'Timeline', href: '#timeline', section: '02' },
@@ -80,13 +73,6 @@ export const committeeMembers: CommitteeMember[] = [
   { initials: '—', role: 'Role pending verification', name: 'Committee profile 02 pending', state: 'placeholder' },
   { initials: '—', role: 'Role pending verification', name: 'Committee profile 03 pending', state: 'placeholder' },
   { initials: '—', role: 'Role pending verification', name: 'Committee profile 04 pending', state: 'placeholder' },
-]
-
-export const galleryItems: GalleryItem[] = [
-  { title: 'The signal', label: 'Archive placeholder / nebula', image: '/assets/archive-nebula.svg', alt: 'Abstract blue and purple nebula with a glowing planet; placeholder for verified event imagery' },
-  { title: 'Orbital logic', label: 'Archive placeholder / orbit', image: '/assets/archive-orbit.svg', alt: 'Abstract glowing planet with intersecting orbital rings; placeholder for verified event imagery' },
-  { title: 'Command center', label: 'Archive placeholder / interface', image: '/assets/archive-command.svg', alt: 'Abstract futuristic command interface with radar circle; placeholder for verified event imagery' },
-  { title: 'Launch sequence', label: 'Archive placeholder / ascent', image: '/assets/archive-launch.svg', alt: 'Abstract luminous launch vehicle moving through a star field; placeholder for verified event imagery' },
 ]
 
 export const partnerSlots = [
