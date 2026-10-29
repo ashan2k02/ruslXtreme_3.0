@@ -74,12 +74,13 @@ function App() {
           <div className="shell-width hero__content">
             <div className="hero__topline"><span>RUSL / 03</span><span className="topline-line" /><span>IEEE STUDENT BRANCH / RAJARATA</span></div>
             <div className="hero__copy">
+              <div className="hero__brandline"><span>RUSLXTREME</span><b>3.0</b></div>
               <div className="hero__eyebrow"><span className="signal-dot" />Mission control online <StatusPill tone="live">Registration closed</StatusPill></div>
               <h1>Explore<br /><em>beyond</em> limits<span className="headline-mark">*</span></h1>
-              <p className="hero__lede">A competitive programming mission for the curious, the relentless, and the builders who think in systems.</p>
+              <p className="hero__lede">A competitive programming experience that challenges minds and celebrates innovation.</p>
               <div className="hero__actions">
-                <a className="button button--primary" href="#about" onClick={scrollTo}>Explore the mission <ArrowDown size={17} /></a>
-                <a className="button button--ghost" href="#rules" onClick={scrollTo}>Competition information <ArrowUpRight size={16} /></a>
+                <a className="button button--primary" href="#about" onClick={scrollTo}>Explore the Mission <ArrowDown size={17} /></a>
+                <a className="button button--ghost" href="#rules" onClick={scrollTo}>Discover the Competition <ArrowUpRight size={16} /></a>
               </div>
             </div>
             <div className="hero__footer">
