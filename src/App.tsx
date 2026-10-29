@@ -32,7 +32,8 @@ function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; t
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeGallery, setActiveGallery] = useState<number | null>(null)
-  const [openFaq, setOpenFaq] = useState<string | null>(faqItems[0].id)
+  const [openFaqs, setOpenFaqs] = useState<Record<string, boolean>>({ [faqItems[0].id]: true })
+  const toggleFaq = (id: string) => setOpenFaqs((prev) => ({ ...prev, [id]: !prev[id] }))
   const lightboxCloseRef = useRef<HTMLButtonElement>(null)
   const galleryTriggerRef = useRef<HTMLButtonElement>(null)
 
@@ -202,16 +203,132 @@ function App() {
 
         <section className="section section--faq" id="faq">
           <div className="shell-width faq-layout">
-            <div><div className="section-index">07 <span>/</span> FAQ</div><SectionHeading eyebrow="Frequently asked" title="Clear answers. No assumptions." copy="A concise briefing for the questions visitors are most likely to have. Verified information is separated from details still awaiting the official announcement." /></div>
-            <div className="faq-list">{faqItems.map((item, index) => { const isOpen = openFaq === item.id; return <article className={`faq-item${isOpen ? ' faq-item--open' : ''}`} key={item.id}><h3><button type="button" aria-expanded={isOpen} aria-controls={`faq-answer-${item.id}`} onClick={() => setOpenFaq(isOpen ? null : item.id)}><span className="faq-item__number">0{index + 1}</span><span>{item.question}</span><ChevronRight size={17} aria-hidden="true" /></button></h3><div className="faq-item__answer" id={`faq-answer-${item.id}`} hidden={!isOpen}><p>{item.answer}</p><span><span className={`faq-item__dot faq-item__dot--${item.verified ? 'verified' : 'pending'}`} />{item.verified ? 'Verified project information' : 'Pending official information'}</span></div></article> })}</div>
+            <div>
+              <div className="section-index">07 <span>/</span> FAQ</div>
+              <SectionHeading
+                eyebrow="Frequently asked"
+                title="Clear answers. No assumptions."
+                copy="A concise briefing for the questions visitors are most likely to have. Verified information is separated from details still awaiting the official announcement."
+              />
+            </div>
+            <div className="faq-list">
+              {faqItems.map((item, index) => {
+                const isOpen = Boolean(openFaqs[item.id])
+                return (
+                  <article className={`faq-item${isOpen ? ' faq-item--open' : ''}`} key={item.id}>
+                    <h3>
+                      <button
+                        id={`faq-trigger-${item.id}`}
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-controls={`faq-answer-${item.id}`}
+                        onClick={() => toggleFaq(item.id)}
+                      >
+                        <span className="faq-item__number">0{index + 1}</span>
+                        <span>{item.question}</span>
+                        <ChevronRight size={17} aria-hidden="true" />
+                      </button>
+                    </h3>
+                    <div
+                      className="faq-item__answer"
+                      id={`faq-answer-${item.id}`}
+                      role="region"
+                      aria-labelledby={`faq-trigger-${item.id}`}
+                      hidden={!isOpen}
+                    >
+                      <p>{item.answer}</p>
+                      <span>
+                        <span
+                          className={`faq-item__dot faq-item__dot--${item.verified ? 'verified' : 'pending'}`}
+                          aria-hidden="true"
+                        />
+                        {item.verified ? 'Verified project information' : 'Pending official information'}
+                      </span>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
           </div>
         </section>
 
         <section className="section section--partners" id="partners">
           <div className="shell-width partners-showcase">
-            <div className="section-topline"><div className="section-index">08 <span>/</span> ALLIES</div><StatusPill>Official partners pending</StatusPill></div>
-            <div className="partners-showcase__heading"><SectionHeading eyebrow="Sponsors & partners" title="Good work travels farther together." copy="This showcase is ready for official sponsor tiers, names, logos, and verified links. Until then, it stays intentionally neutral—no company is presented as a confirmed partner." /><div className="partners-showcase__mark"><Layers3 size={29} /><span>UPLINK<br />PENDING</span></div></div>
-            <div className="sponsor-grid">{sponsorSlots.map((slot) => <article className="sponsor-card" key={slot.id}><div className="sponsor-card__top"><span>{slot.tier}</span><StatusPill>Pending</StatusPill></div><div className="sponsor-card__logo"><Layers3 size={25} /><span>LOGO<br />PENDING</span></div><div><span className="sponsor-card__category">{slot.category}</span><h3>{slot.name}</h3></div><span className="sponsor-card__note">Official name, logo, and website to be announced.</span></article>)}</div>
+            <div className="section-topline">
+              <div className="section-index">08 <span>/</span> ALLIES</div>
+              <StatusPill tone="placeholder">Official partners pending</StatusPill>
+            </div>
+            <div className="partners-showcase__heading">
+              <SectionHeading
+                eyebrow="Sponsors & partners"
+                title="Good work travels farther together."
+                copy="This showcase is ready for official sponsor tiers, names, logos, and verified links. Until then, it stays intentionally neutral—no company is presented as a confirmed partner."
+              />
+              <div className="partners-showcase__mark">
+                <Layers3 size={29} />
+                <span>UPLINK<br />PENDING</span>
+              </div>
+            </div>
+
+            <div className="partners-tba-banner">
+              <div className="partners-tba-banner__icon">
+                <Sparkles size={18} />
+              </div>
+              <div className="partners-tba-banner__content">
+                <strong>Official sponsors and partners to be announced</strong>
+                <p>
+                  Tier allocations across Founding, Technology, and Community partnerships are being prepared.
+                  Verified sponsor profiles, brand marks, and website links will be published once agreements are confirmed.
+                </p>
+              </div>
+              <a className="button button--ghost" href="#contact" onClick={scrollTo}>
+                Partner with the mission <ArrowUpRight size={15} />
+              </a>
+            </div>
+
+            <div className="sponsor-grid">
+              {sponsorSlots.map((slot) => {
+                const isVerified = slot.state === 'verified'
+                return (
+                  <article className={`sponsor-card${isVerified ? ' sponsor-card--verified' : ''}`} key={slot.id}>
+                    <div className="sponsor-card__top">
+                      <span>{slot.tier}</span>
+                      <StatusPill tone={isVerified ? 'live' : 'placeholder'}>
+                        {isVerified ? 'Verified' : 'Pending'}
+                      </StatusPill>
+                    </div>
+                    <div className="sponsor-card__logo">
+                      {isVerified && slot.logo ? (
+                        <img src={slot.logo} alt={slot.logoAlt || `${slot.name} logo`} className="sponsor-card__logo-img" />
+                      ) : (
+                        <>
+                          <Layers3 size={25} />
+                          <span>LOGO<br />PENDING</span>
+                        </>
+                      )}
+                    </div>
+                    <div>
+                      <span className="sponsor-card__category">{slot.category}</span>
+                      <h3>{slot.name}</h3>
+                      {slot.description && <p className="sponsor-card__desc">{slot.description}</p>}
+                    </div>
+                    {isVerified && slot.website ? (
+                      <a
+                        href={slot.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="sponsor-card__link"
+                        aria-label={`Visit official website of ${slot.name}`}
+                      >
+                        Visit website <ArrowUpRight size={14} />
+                      </a>
+                    ) : (
+                      <span className="sponsor-card__note">Official name, logo, and website to be announced.</span>
+                    )}
+                  </article>
+                )
+              })}
+            </div>
           </div>
         </section>
 
@@ -223,7 +340,7 @@ function App() {
         </section>
       </main>
 
-      <footer className="site-footer"><div className="shell-width site-footer__inner"><BrandMark compact /><p>RUSLXTREME 3.0 — Think. Code. Conquer.</p><div className="footer-links"><a href="#about" onClick={scrollTo}>Mission</a><a href="#gallery" onClick={scrollTo}>Archive</a><a href="#contact" onClick={scrollTo}>Contact</a></div><div className="footer-socials"><a href="#contact" aria-label="Visual archive placeholder" onClick={scrollTo}><ImageIcon size={16} /></a><a href="#contact" aria-label="Community placeholder" onClick={scrollTo}><Users size={16} /></a><a href="#contact" aria-label="Code community placeholder" onClick={scrollTo}><Code2 size={16} /></a></div></div><div className="shell-width site-footer__bottom"><span>Organized by the IEEE Student Branch of Rajarata University of Sri Lanka.</span><span>Frontend mission brief / 2026</span></div></footer>
+      <footer className="site-footer"><div className="shell-width site-footer__inner"><BrandMark compact /><p>RUSLXTREME 3.0 — Think. Code. Conquer.</p><div className="footer-links"><a href="#about" onClick={scrollTo}>Mission</a><a href="#rules" onClick={scrollTo}>Rules</a><a href="#gallery" onClick={scrollTo}>Archive</a><a href="#faq" onClick={scrollTo}>FAQ</a><a href="#partners" onClick={scrollTo}>Partners</a><a href="#contact" onClick={scrollTo}>Contact</a></div><div className="footer-socials"><a href="#contact" aria-label="Visual archive placeholder" onClick={scrollTo}><ImageIcon size={16} /></a><a href="#contact" aria-label="Community placeholder" onClick={scrollTo}><Users size={16} /></a><a href="#contact" aria-label="Code community placeholder" onClick={scrollTo}><Code2 size={16} /></a></div></div><div className="shell-width site-footer__bottom"><span>Organized by the IEEE Student Branch of Rajarata University of Sri Lanka.</span><span>Frontend mission brief / 2026</span></div></footer>
 
       {activeGallery !== null && <div className="lightbox" role="dialog" aria-modal="true" aria-label={`${archiveItems[activeGallery].title} gallery image`} onClick={closeGallery}><button ref={lightboxCloseRef} type="button" className="lightbox__close icon-button" aria-label="Close gallery image" onClick={closeGallery}><X size={20} /></button><figure onClick={(event) => event.stopPropagation()}><img src={archiveItems[activeGallery].image} alt={archiveItems[activeGallery].alt} /><figcaption><span>{archiveItems[activeGallery].label}</span><strong>{archiveItems[activeGallery].title}</strong></figcaption></figure></div>}
     </div>

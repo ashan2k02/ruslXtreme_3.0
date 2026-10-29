@@ -34,7 +34,9 @@ export const navItems: NavItem[] = [
   { label: 'Timeline', href: '#timeline', section: '02' },
   { label: 'Rules', href: '#rules', section: '03' },
   { label: 'Results', href: '#leaderboard', section: '04' },
-  { label: 'Archive', href: '#gallery', section: '05' },
+  { label: 'Archive', href: '#gallery', section: '06' },
+  { label: 'FAQ', href: '#faq', section: '07' },
+  { label: 'Partners', href: '#partners', section: '08' },
 ]
 
 export const missionStages: MissionStage[] = [
