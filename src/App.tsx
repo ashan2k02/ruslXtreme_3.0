@@ -19,7 +19,8 @@ import {
 } from 'lucide-react'
 import { BrandMark } from './components/BrandMark'
 import { SectionHeading } from './components/SectionHeading'
-import { committeeMembers, galleryItems, missionStages, navItems, partnerSlots, ruleGroups } from './data'
+import { galleryItems, missionStages, navItems, partnerSlots, ruleGroups } from './data'
+import { committeeLeadership, committeeTeams } from './data/committee'
 
 function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; tone?: 'placeholder' | 'live' }) {
   return <span className={`status-pill status-pill--${tone}`}><span />{children}</span>
@@ -173,9 +174,15 @@ function App() {
 
         <section className="section section--committee" id="committee">
           <div className="shell-width">
-            <div className="section-topline"><div className="section-index">05 <span>/</span> CREW</div><span className="mono-note">PEOPLE BEHIND THE MISSION</span></div>
-            <div className="committee-heading"><SectionHeading eyebrow="Organizing committee" title="A mission moves because people do." copy="The organizing committee module is ready for the verified team roster. Profiles below are visibly marked as placeholders until names, roles, and portraits are supplied." /><Users className="committee-heading__icon" size={46} strokeWidth={1} /></div>
-            <div className="committee-grid">{committeeMembers.map((member) => <article className="member-card" key={member.role}><div className="member-card__avatar"><span>{member.initials}</span><div className="avatar-orbit" /></div><div className="member-card__role">{member.role}</div><h3>{member.name}</h3><span className="member-card__status"><span />Placeholder profile</span></article>)}</div>
+            <div className="section-topline"><div className="section-index">05 <span>/</span> CREW</div><StatusPill>Demo profiles — replace before launch</StatusPill></div>
+            <div className="committee-heading"><SectionHeading eyebrow="Organizing committee" title="The crew behind the signal." copy="A premium directory for the people who shape the mission. The profiles below are clearly marked demo content and are ready to be replaced with verified committee information." /><Users className="committee-heading__icon" size={46} strokeWidth={1} /></div>
+            <div className="committee-demo-note"><span className="signal-dot" /> DEMO PROFILES — REPLACE BEFORE LAUNCH <span>Names, portraits, roles, and bios are illustrative only.</span></div>
+            <div className="committee-leadership">
+              {committeeLeadership.map((member) => <article className="leader-card" key={member.id}><div className="leader-card__image-wrap"><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} /><span className="leader-card__scan">LEADERSHIP / DEMO</span><span className="leader-card__index">0{committeeLeadership.indexOf(member) + 1}</span></div><div className="leader-card__body"><div className="member-card__role">{member.title}</div><h3>{member.name}</h3><p>{member.bio}</p><span className="member-card__status"><span />Demo profile</span></div></article>)}
+            </div>
+            <div className="committee-teams">
+              {committeeTeams.map((team, teamIndex) => <section className="committee-team" key={team.id} aria-labelledby={`team-${team.id}`}><div className="committee-team__heading"><div><span className="committee-team__index">0{teamIndex + 1}</span><h3 id={`team-${team.id}`}>{team.name}</h3></div><p>{team.description}</p></div><div className="committee-members">{team.members.map((member) => <article className="directory-card" key={member.id}><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} /><div className="directory-card__body"><span className="member-card__role">{member.title}</span><h4>{member.name}</h4><span className="directory-card__team">{member.team}</span><span className="member-card__status"><span />Demo profile</span></div></article>)}</div></section>)}
+            </div>
           </div>
         </section>
 
