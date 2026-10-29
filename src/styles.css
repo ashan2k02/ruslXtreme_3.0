@@ -338,6 +338,58 @@ button { border: 0; font: inherit; cursor: pointer; }
   .hero__lede { max-width: 310px; font-size: 14px; }
 }
 
+html, body { overflow-x: clip; }
+:where(a, button):focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.site-nav, .site-nav a, .hero__copy, .section-heading, .rule-card, .member-card, .partner-row, .contact-card__copy { min-width: 0; }
+.site-nav a, .button, .icon-button, .gallery-card { -webkit-tap-highlight-color: transparent; }
+.icon-button { min-width: 44px; min-height: 44px; }
+.lightbox figure { max-height: calc(100dvh - 60px); overflow: auto; border-radius: 8px; }
+.lightbox img { max-height: calc(100dvh - 150px); }
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .shell-width { width: min(100% - 48px, 1040px); }
+  .site-nav { gap: 17px; }
+  .site-nav a { font-size: 10px; }
+  .hero__planet--large { right: 4%; width: min(39vw, 410px); }
+}
+
+@media (max-width: 900px) {
+  .site-nav { max-height: calc(100dvh - 88px); overflow-y: auto; overscroll-behavior: contain; }
+  .site-nav a { min-height: 48px; }
+  .hero__content { padding-bottom: 24px; }
+  .section-heading p { max-width: 620px; }
+}
+
+@media (max-width: 620px) {
+  .site-header__inner { height: 64px; }
+  .site-nav { top: 64px; left: 16px; right: 16px; }
+  .site-nav a { min-height: 52px; padding: 15px 12px; }
+  .hero { height: auto; min-height: 780px; }
+  .hero__content { min-height: 780px; padding-top: 100px; }
+  .hero__brandline { letter-spacing: .12em; }
+  .hero__eyebrow { flex-wrap: wrap; row-gap: 12px; }
+  .hero__eyebrow .status-pill { margin-left: 0; }
+  .hero h1 { font-size: clamp(52px, 17.2vw, 82px); line-height: .87; }
+  .hero__actions { width: min(100%, 300px); max-width: none; }
+  .hero__actions .button { width: 100%; min-height: 50px; }
+  .hero__planet--large { top: 38%; right: -31%; opacity: .56; }
+  .hero__orbit { opacity: .62; }
+  .gallery-grid { grid-template-rows: minmax(180px, 1.25fr) repeat(2, minmax(130px, 1fr)); min-height: 460px; }
+  .lightbox { padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
+  .lightbox figure { max-height: calc(100dvh - 28px); }
+  .lightbox img { max-height: calc(100dvh - 132px); object-fit: contain; }
+  .lightbox__close { top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); }
+}
+
+@media (max-width: 380px) {
+  .shell-width { width: calc(100% - 28px); }
+  .hero { min-height: 820px; }
+  .hero__content { min-height: 820px; }
+  .hero h1 { font-size: clamp(50px, 16.8vw, 68px); }
+  .section-heading h2 { font-size: 35px; }
+  .leaderboard-panel__header, .leaderboard-panel__footer { padding-inline: 14px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
