@@ -36,6 +36,109 @@ function App() {
   const toggleFaq = (id: string) => setOpenFaqs((prev) => ({ ...prev, [id]: !prev[id] }))
   const lightboxCloseRef = useRef<HTMLButtonElement>(null)
   const galleryTriggerRef = useRef<HTMLButtonElement>(null)
+  const heroRef = useRef<HTMLElement>(null)
+  const cursorGlowRef = useRef<HTMLDivElement>(null)
+  const celestialRef = useRef<HTMLDivElement>(null)
+  const starsNearRef = useRef<HTMLDivElement>(null)
+  const starsMidRef = useRef<HTMLDivElement>(null)
+  const nebulaRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const isTouch = window.matchMedia('(hover: none) or (pointer: coarse)').matches
+    if (prefersReducedMotion || isTouch) return
+
+    const hero = heroRef.current
+    if (!hero) return
+
+    let rafId: number
+    let targetX = 0
+    let targetY = 0
+    let currentGlowX = 0
+    let currentGlowY = 0
+    let targetNormX = 0
+    let targetNormY = 0
+    let isInside = false
+
+    const onPointerMove = (e: globalThis.MouseEvent) => {
+      const rect = hero.getBoundingClientRect()
+      const relX = e.clientX - rect.left
+      const relY = e.clientY - rect.top
+
+      targetX = relX
+      targetY = relY
+      targetNormX = ((relX / rect.width) - 0.5) * 2
+      targetNormY = ((relY / rect.height) - 0.5) * 2
+
+      if (!isInside) {
+        isInside = true
+        currentGlowX = relX
+        currentGlowY = relY
+        if (cursorGlowRef.current) {
+          cursorGlowRef.current.style.opacity = '1'
+        }
+      }
+    }
+
+    const onPointerLeave = () => {
+      isInside = false
+      if (cursorGlowRef.current) {
+        cursorGlowRef.current.style.opacity = '0'
+      }
+      targetNormX = 0
+      targetNormY = 0
+    }
+
+    let smoothOffX = 0
+    let smoothOffY = 0
+
+    const render = () => {
+      if (isInside && cursorGlowRef.current) {
+        currentGlowX += (targetX - currentGlowX) * 0.14
+        currentGlowY += (targetY - currentGlowY) * 0.14
+        cursorGlowRef.current.style.transform = `translate3d(${currentGlowX}px, ${currentGlowY}px, 0)`
+      }
+
+      smoothOffX += (targetNormX - smoothOffX) * 0.05
+      smoothOffY += (targetNormY - smoothOffY) * 0.05
+
+      if (celestialRef.current) {
+        const cx = smoothOffX * -14
+        const cy = smoothOffY * -12
+        celestialRef.current.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`
+      }
+
+      if (starsNearRef.current) {
+        const sx = smoothOffX * -8
+        const sy = smoothOffY * -7
+        starsNearRef.current.style.transform = `translate3d(${sx.toFixed(2)}px, ${sy.toFixed(2)}px, 0)`
+      }
+
+      if (starsMidRef.current) {
+        const mx = smoothOffX * -4
+        const my = smoothOffY * -3
+        starsMidRef.current.style.transform = `translate3d(${mx.toFixed(2)}px, ${my.toFixed(2)}px, 0)`
+      }
+
+      if (nebulaRef.current) {
+        const nx = smoothOffX * -10
+        const ny = smoothOffY * -8
+        nebulaRef.current.style.transform = `translate3d(${nx.toFixed(2)}px, ${ny.toFixed(2)}px, 0)`
+      }
+
+      rafId = requestAnimationFrame(render)
+    }
+
+    hero.addEventListener('mousemove', onPointerMove, { passive: true })
+    hero.addEventListener('mouseleave', onPointerLeave, { passive: true })
+    rafId = requestAnimationFrame(render)
+
+    return () => {
+      hero.removeEventListener('mousemove', onPointerMove)
+      hero.removeEventListener('mouseleave', onPointerLeave)
+      cancelAnimationFrame(rafId)
+    }
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -90,14 +193,43 @@ function App() {
       </header>
 
       <main>
-        <section className="hero" id="home">
-          <div className="hero__stars hero__stars--one" />
-          <div className="hero__stars hero__stars--two" />
-          <div className="hero__nebula" />
-          <div className="hero__planet hero__planet--large" />
-          <div className="hero__planet hero__planet--small" />
-          <div className="hero__orbit hero__orbit--one" />
-          <div className="hero__orbit hero__orbit--two" />
+        <section className="hero" id="home" ref={heroRef}>
+          <div className="hero__vignette" aria-hidden="true" />
+          <div className="hero__cursor-glow" ref={cursorGlowRef} aria-hidden="true" />
+
+          <div className="hero__nebulae-group" ref={nebulaRef} aria-hidden="true">
+            <div className="hero__nebula hero__nebula--primary" />
+            <div className="hero__nebula hero__nebula--violet" />
+            <div className="hero__nebula hero__nebula--cyan" />
+            <div className="hero__nebula hero__nebula--dust" />
+          </div>
+
+          <div className="hero__stars hero__stars--deep" aria-hidden="true" />
+          <div className="hero__stars hero__stars--mid" ref={starsMidRef} aria-hidden="true" />
+          <div className="hero__stars hero__stars--near" ref={starsNearRef} aria-hidden="true" />
+
+          <div className="hero__twinkles" aria-hidden="true">
+            <span className="twinkle-star twinkle-star--1" />
+            <span className="twinkle-star twinkle-star--2" />
+            <span className="twinkle-star twinkle-star--3" />
+            <span className="twinkle-star twinkle-star--4" />
+            <span className="twinkle-star twinkle-star--5" />
+            <span className="twinkle-star twinkle-star--6" />
+          </div>
+
+          <div className="hero__celestial-system" ref={celestialRef} aria-hidden="true">
+            <div className="hero__planet hero__planet--large">
+              <div className="hero__planet-corona" />
+              <div className="hero__planet-atmosphere" />
+              <div className="hero__planet-crescent" />
+            </div>
+            <div className="hero__planet hero__planet--small" />
+            <div className="hero__orbit hero__orbit--one">
+              <span className="hero__celestial-beacon" />
+            </div>
+            <div className="hero__orbit hero__orbit--two" />
+          </div>
+
           <div className="shell-width hero__content">
             <div className="hero__topline"><span>RUSL / 03</span><span className="topline-line" /><span>IEEE STUDENT BRANCH / RAJARATA</span></div>
             <div className="hero__copy">
