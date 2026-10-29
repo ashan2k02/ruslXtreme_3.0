@@ -95,7 +95,7 @@ function App() {
           <div className="shell-width intro-grid">
             <div className="section-index">01 <span>/</span> MISSION</div>
             <div className="intro-grid__main">
-              <SectionHeading eyebrow="Mission brief" title="Code is a way of seeing further." copy="RUSLXTREME 3.0 is a competitive programming event organized by the IEEE Student Branch of Rajarata University of Sri Lanka. This is the launchpad for the next generation of problem solvers." />
+                <SectionHeading eyebrow="Mission brief" title="Code is a way of seeing further." copy="RUSLXTREME 3.0 is a competitive programming event organized by the IEEE Student Branch of Rajarata University of Sri Lanka. This brief introduces the event while keeping every unconfirmed detail clearly marked." />
               <div className="intro-grid__lower">
                 <p className="body-copy">The event identity is built around curiosity, precision, and the rush of solving something that looked impossible a moment ago. Details in this brief remain intentionally honest: anything not supplied by the organizers is marked as a placeholder until verified.</p>
                 <div className="brief-card">
@@ -180,7 +180,7 @@ function App() {
         <section className="section section--contact" id="contact">
           <div className="shell-width contact-card">
             <div className="contact-card__visual"><div className="contact-card__grid" /><div className="contact-card__planet" /><span className="contact-card__tag">Open channel / RUSLXTREME 3.0</span><div className="contact-card__code">STATUS: <strong>AWAITING UPLINK</strong><br />ORIGIN: <strong>RAJARATA / LK</strong><br />MODE: <strong>MISSION CONTROL</strong></div></div>
-            <div className="contact-card__copy"><div className="section-index">08 <span>/</span> CONTACT</div><SectionHeading eyebrow="Open a channel" title="Have an official update? Send it through." copy="Contact channels were not included in the supplied brief. This space is intentionally ready for the verified organizer email, social links, venue details, and other official updates." /><div className="contact-actions"><a className="button button--primary" href="mailto:" onClick={(event) => event.preventDefault()}>Official email pending <Mail size={16} /></a><a className="text-link" href="#home" onClick={scrollTo}>Return to mission start <ArrowUpRight size={15} /></a></div></div>
+            <div className="contact-card__copy"><div className="section-index">08 <span>/</span> CONTACT</div><SectionHeading eyebrow="Open a channel" title="Have an official update? Send it through." copy="Contact channels were not included in the supplied brief. This space is intentionally ready for the verified organizer email, social links, venue details, and other official updates." /><div className="contact-actions"><span className="button button--primary button--disabled" role="status">Official email pending <Mail size={16} /></span><a className="text-link" href="#home" onClick={scrollTo}>Return to mission start <ArrowUpRight size={15} /></a></div></div>
           </div>
         </section>
       </main>

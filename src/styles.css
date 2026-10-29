@@ -73,6 +73,8 @@ button { border: 0; font: inherit; cursor: pointer; }
 .button--primary:hover { background: #c2f8ff; box-shadow: 0 12px 30px rgba(105, 232, 255, .16); }
 .button--ghost { border-color: rgba(129, 193, 222, .28); color: #c0d1df; background: rgba(8, 18, 33, .32); }
 .button--ghost:hover { border-color: var(--cyan); color: var(--cyan); background: rgba(105, 232, 255, .06); }
+.button--disabled { opacity: .72; cursor: not-allowed; }
+.button--disabled:hover { transform: none; box-shadow: none; }
 .hero__footer { display: grid; grid-template-columns: 1fr 1fr auto; gap: 30px; align-items: end; border-top: 1px solid rgba(161, 204, 238, .18); padding-top: 18px; }
 .hero__meta { display: block; }
 .meta-kicker { display: block; margin-bottom: 7px; color: #5e708b; font-size: 9px; }

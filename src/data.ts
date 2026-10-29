@@ -76,17 +76,17 @@ export const ruleGroups: RuleGroup[] = [
 ]
 
 export const committeeMembers: CommitteeMember[] = [
-  { initials: '—', role: 'Lead coordinator', name: 'Profile pending verification', state: 'placeholder' },
-  { initials: '—', role: 'Technical direction', name: 'Profile pending verification', state: 'placeholder' },
-  { initials: '—', role: 'Operations & experience', name: 'Profile pending verification', state: 'placeholder' },
-  { initials: '—', role: 'Communications', name: 'Profile pending verification', state: 'placeholder' },
+  { initials: '—', role: 'Role pending verification', name: 'Committee profile 01 pending', state: 'placeholder' },
+  { initials: '—', role: 'Role pending verification', name: 'Committee profile 02 pending', state: 'placeholder' },
+  { initials: '—', role: 'Role pending verification', name: 'Committee profile 03 pending', state: 'placeholder' },
+  { initials: '—', role: 'Role pending verification', name: 'Committee profile 04 pending', state: 'placeholder' },
 ]
 
 export const galleryItems: GalleryItem[] = [
-  { title: 'The signal', label: 'Visual placeholder / nebula', image: '/assets/archive-nebula.svg', alt: 'Abstract blue and purple nebula with a glowing planet' },
-  { title: 'Orbital logic', label: 'Visual placeholder / orbit', image: '/assets/archive-orbit.svg', alt: 'Abstract glowing planet with intersecting orbital rings' },
-  { title: 'Command center', label: 'Visual placeholder / interface', image: '/assets/archive-command.svg', alt: 'Abstract futuristic command interface with radar circle' },
-  { title: 'Launch sequence', label: 'Visual placeholder / ascent', image: '/assets/archive-launch.svg', alt: 'Abstract luminous launch vehicle moving through a star field' },
+  { title: 'The signal', label: 'Archive placeholder / nebula', image: '/assets/archive-nebula.svg', alt: 'Abstract blue and purple nebula with a glowing planet; placeholder for verified event imagery' },
+  { title: 'Orbital logic', label: 'Archive placeholder / orbit', image: '/assets/archive-orbit.svg', alt: 'Abstract glowing planet with intersecting orbital rings; placeholder for verified event imagery' },
+  { title: 'Command center', label: 'Archive placeholder / interface', image: '/assets/archive-command.svg', alt: 'Abstract futuristic command interface with radar circle; placeholder for verified event imagery' },
+  { title: 'Launch sequence', label: 'Archive placeholder / ascent', image: '/assets/archive-launch.svg', alt: 'Abstract luminous launch vehicle moving through a star field; placeholder for verified event imagery' },
 ]
 
 export const partnerSlots = [
