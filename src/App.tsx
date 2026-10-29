@@ -39,14 +39,18 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && activeGallery !== null) {
-        setActiveGallery(null)
-        requestAnimationFrame(() => galleryTriggerRef.current?.focus())
+      if (event.key === 'Escape') {
+        if (activeGallery !== null) {
+          setActiveGallery(null)
+          requestAnimationFrame(() => galleryTriggerRef.current?.focus())
+        } else if (mobileOpen) {
+          setMobileOpen(false)
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [activeGallery])
+  }, [activeGallery, mobileOpen])
 
   useEffect(() => {
     if (activeGallery !== null) lightboxCloseRef.current?.focus()
@@ -184,10 +188,10 @@ function App() {
             <div className="committee-heading"><SectionHeading eyebrow="Organizing committee" title="The crew behind the signal." copy="A premium directory for the people who shape the mission. The profiles below are clearly marked demo content and are ready to be replaced with verified committee information." /><Users className="committee-heading__icon" size={46} strokeWidth={1} /></div>
             <div className="committee-demo-note"><span className="signal-dot" /> DEMO PROFILES — REPLACE BEFORE LAUNCH <span>Names, portraits, roles, and bios are illustrative only.</span></div>
             <div className="committee-leadership">
-              {committeeLeadership.map((member) => <article className="leader-card" key={member.id}><div className="leader-card__image-wrap"><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} /><span className="leader-card__scan">LEADERSHIP / DEMO</span><span className="leader-card__index">0{committeeLeadership.indexOf(member) + 1}</span></div><div className="leader-card__body"><div className="member-card__role">{member.title}</div><h3>{member.name}</h3><p>{member.bio}</p><span className="member-card__status"><span />Demo profile</span></div></article>)}
+              {committeeLeadership.map((member) => <article className="leader-card" key={member.id}><div className="leader-card__image-wrap"><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} loading="lazy" decoding="async" /><span className="leader-card__scan">LEADERSHIP / DEMO</span><span className="leader-card__index">0{committeeLeadership.indexOf(member) + 1}</span></div><div className="leader-card__body"><div className="member-card__role">{member.title}</div><h3>{member.name}</h3><p>{member.bio}</p><span className="member-card__status"><span />Demo profile</span></div></article>)}
             </div>
             <div className="committee-teams">
-              {committeeTeams.map((team, teamIndex) => <section className="committee-team" key={team.id} aria-labelledby={`team-${team.id}`}><div className="committee-team__heading"><div><span className="committee-team__index">0{teamIndex + 1}</span><h3 id={`team-${team.id}`}>{team.name}</h3></div><p>{team.description}</p></div><div className="committee-members">{team.members.map((member) => <article className="directory-card" key={member.id}><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} /><div className="directory-card__body"><span className="member-card__role">{member.title}</span><h4>{member.name}</h4><span className="directory-card__team">{member.team}</span><span className="member-card__status"><span />Demo profile</span></div></article>)}</div></section>)}
+              {committeeTeams.map((team, teamIndex) => <section className="committee-team" key={team.id} aria-labelledby={`team-${team.id}`}><div className="committee-team__heading"><div><span className="committee-team__index">0{teamIndex + 1}</span><h3 id={`team-${team.id}`}>{team.name}</h3></div><p>{team.description}</p></div><div className="committee-members">{team.members.map((member) => <article className="directory-card" key={member.id}><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} loading="lazy" decoding="async" /><div className="directory-card__body"><span className="member-card__role">{member.title}</span><h4>{member.name}</h4><span className="directory-card__team">{member.team}</span><span className="member-card__status"><span />Demo profile</span></div></article>)}</div></section>)}
             </div>
           </div>
         </section>
@@ -197,7 +201,7 @@ function App() {
             <div className="section-topline"><div className="section-index">06 <span>/</span> ARCHIVE</div><div className="section-topline__aside"><ImageIcon size={16} /> Local illustrative archive</div></div>
             <div className="gallery-heading"><SectionHeading eyebrow="Past events & memories" title="Every challenge leaves a legacy." copy="The archive celebrates the spirit of RUSLXTREME across its event chapters. Authentic photography and verified history will replace these clearly labeled demo visuals when supplied by the organizers." /><div className="gallery-heading__index">03<br /><span>CHAPTERS</span></div></div>
             <div className="archive-demo-note"><span className="signal-dot" /> ILLUSTRATIVE DEMO ARCHIVE <span>Artwork is not authentic event photography.</span></div>
-            <div className="archive-events">{archiveEvents.map((event) => <section className="archive-event" key={event.id} aria-labelledby={`archive-${event.id}`}><div className="archive-event__heading"><div><span className="archive-event__status">{event.status}</span><h3 id={`archive-${event.id}`}>{event.name}</h3></div><p>{event.description}</p></div><div className="archive-event__grid">{event.items.map((item) => { const index = archiveItems.findIndex((archiveItem) => archiveItem.id === item.id); return <button className={`archive-card${item.featured ? ' archive-card--featured' : ''}`} type="button" key={item.id} onClick={(event) => openGallery(index, event)} aria-label={`Open ${event.name} ${item.title} image`}><img src={item.image} alt={item.alt} /><span className="gallery-card__overlay" /><span className="gallery-card__meta"><span>{item.label}</span><strong>{item.title}</strong></span><span className="gallery-card__open"><ArrowUpRight size={17} /></span></button> })}</div></section>)}</div>
+            <div className="archive-events">{archiveEvents.map((event) => <section className="archive-event" key={event.id} aria-labelledby={`archive-${event.id}`}><div className="archive-event__heading"><div><span className="archive-event__status">{event.status}</span><h3 id={`archive-${event.id}`}>{event.name}</h3></div><p>{event.description}</p></div><div className="archive-event__grid">{event.items.map((item) => { const index = archiveItems.findIndex((archiveItem) => archiveItem.id === item.id); return <button className={`archive-card${item.featured ? ' archive-card--featured' : ''}`} type="button" key={item.id} onClick={(event) => openGallery(index, event)} aria-label={`Open ${event.name} ${item.title} image`}><img src={item.image} alt={item.alt} loading="lazy" decoding="async" /><span className="gallery-card__overlay" /><span className="gallery-card__meta"><span>{item.label}</span><strong>{item.title}</strong></span><span className="gallery-card__open"><ArrowUpRight size={17} /></span></button> })}</div></section>)}</div>
           </div>
         </section>
 
@@ -299,7 +303,7 @@ function App() {
                     </div>
                     <div className="sponsor-card__logo">
                       {isVerified && slot.logo ? (
-                        <img src={slot.logo} alt={slot.logoAlt || `${slot.name} logo`} className="sponsor-card__logo-img" />
+                        <img src={slot.logo} alt={slot.logoAlt || `${slot.name} logo`} className="sponsor-card__logo-img" loading="lazy" decoding="async" />
                       ) : (
                         <>
                           <Layers3 size={25} />
