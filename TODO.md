@@ -19,4 +19,4 @@
 
 ## Documentation and delivery
 - [x] Include source files, reusable components, static content data, image assets, local setup/build instructions, asset documentation, and Vercel deployment instructions.
-- [ ] Create and verify a managed checkpoint after final build validation.
+- [x] Create and verify a managed checkpoint after final build validation.
