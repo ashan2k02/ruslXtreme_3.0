@@ -41,7 +41,7 @@ function App() {
   const celestialRef = useRef<HTMLDivElement>(null)
   const starsNearRef = useRef<HTMLDivElement>(null)
   const starsMidRef = useRef<HTMLDivElement>(null)
-  const nebulaRef = useRef<HTMLDivElement>(null)
+  const terrainRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -120,10 +120,10 @@ function App() {
         starsMidRef.current.style.transform = `translate3d(${mx.toFixed(2)}px, ${my.toFixed(2)}px, 0)`
       }
 
-      if (nebulaRef.current) {
-        const nx = smoothOffX * -10
-        const ny = smoothOffY * -8
-        nebulaRef.current.style.transform = `translate3d(${nx.toFixed(2)}px, ${ny.toFixed(2)}px, 0)`
+      if (terrainRef.current) {
+        const tx = smoothOffX * -6
+        const ty = smoothOffY * -3
+        terrainRef.current.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0)`
       }
 
       rafId = requestAnimationFrame(render)
@@ -194,15 +194,9 @@ function App() {
 
       <main>
         <section className="hero" id="home" ref={heroRef}>
+          <div className="hero__lunar-bg" aria-hidden="true" />
           <div className="hero__vignette" aria-hidden="true" />
           <div className="hero__cursor-glow" ref={cursorGlowRef} aria-hidden="true" />
-
-          <div className="hero__nebulae-group" ref={nebulaRef} aria-hidden="true">
-            <div className="hero__nebula hero__nebula--primary" />
-            <div className="hero__nebula hero__nebula--violet" />
-            <div className="hero__nebula hero__nebula--cyan" />
-            <div className="hero__nebula hero__nebula--dust" />
-          </div>
 
           <div className="hero__stars hero__stars--deep" aria-hidden="true" />
           <div className="hero__stars hero__stars--mid" ref={starsMidRef} aria-hidden="true" />
@@ -213,21 +207,31 @@ function App() {
             <span className="twinkle-star twinkle-star--2" />
             <span className="twinkle-star twinkle-star--3" />
             <span className="twinkle-star twinkle-star--4" />
-            <span className="twinkle-star twinkle-star--5" />
-            <span className="twinkle-star twinkle-star--6" />
           </div>
 
           <div className="hero__celestial-system" ref={celestialRef} aria-hidden="true">
-            <div className="hero__planet hero__planet--large">
-              <div className="hero__planet-corona" />
-              <div className="hero__planet-atmosphere" />
-              <div className="hero__planet-crescent" />
+            <div className="hero__moon">
+              <div className="hero__moon-rimlight" />
             </div>
-            <div className="hero__planet hero__planet--small" />
-            <div className="hero__orbit hero__orbit--one">
-              <span className="hero__celestial-beacon" />
-            </div>
-            <div className="hero__orbit hero__orbit--two" />
+            <div className="hero__earth" />
+          </div>
+
+          <div className="hero__terrain" ref={terrainRef} aria-hidden="true">
+            <svg className="hero__terrain-svg" viewBox="0 0 1920 280" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="terrainFade" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="transparent" />
+                  <stop offset="35%" stopColor="#0a0d14" stopOpacity=".88" />
+                  <stop offset="100%" stopColor="#080b12" />
+                </linearGradient>
+              </defs>
+              <path d="M0 280V195c30-8 80-35 140-42 65-7 130 12 210 5 90-8 155-38 230-32 85 7 160 42 245 38 75-4 140-28 215-35 80-8 160 6 240 2 70-3 130-22 200-28 65-5 120 8 190 12 55 3 120-5 160-12l90 177z" fill="url(#terrainFade)" />
+              <ellipse cx="420" cy="230" rx="55" ry="12" fill="rgba(6,8,14,.7)" />
+              <ellipse cx="820" cy="210" rx="38" ry="9" fill="rgba(6,8,14,.65)" />
+              <ellipse cx="1350" cy="225" rx="48" ry="11" fill="rgba(6,8,14,.6)" />
+              <ellipse cx="250" cy="245" rx="28" ry="7" fill="rgba(8,10,16,.5)" />
+              <ellipse cx="650" cy="240" rx="22" ry="5" fill="rgba(8,10,16,.45)" />
+            </svg>
           </div>
 
           <div className="shell-width hero__content">
