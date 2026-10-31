@@ -97,7 +97,7 @@ export class ScoreboardSyncEngine {
     // Auth state
     this.email = this.env.CSACADEMY_EMAIL || null
     this.password = this.env.CSACADEMY_PASSWORD || null
-    this.sessionId = this.env.CSACADEMY_SESSION_ID || null
+    this.sessionId = this.env.CSACADEMY_SESSION_ID || this.env.CSACADEMY_CROSS_SESSION_ID || null
     this.csrfToken = this.env.CSACADEMY_CSRF_TOKEN || null
     this.isAuthenticated = Boolean(this.sessionId)
 
@@ -165,7 +165,10 @@ export class ScoreboardSyncEngine {
 
   getCookieHeader() {
     const cookies = []
-    if (this.sessionId) cookies.push(`sessionid=${this.sessionId}`)
+    if (this.sessionId) {
+      cookies.push(`sessionid=${this.sessionId}`)
+      cookies.push(`crossSessionId=${this.sessionId}`)
+    }
     if (this.csrfToken) cookies.push(`csrftoken=${this.csrfToken}`)
     return cookies.join('; ')
   }
@@ -232,6 +235,9 @@ export class ScoreboardSyncEngine {
       for (const c of loginCookies) {
         if (c.includes('sessionid=')) {
           this.sessionId = c.split('sessionid=')[1].split(';')[0]
+        }
+        if (c.includes('crossSessionId=')) {
+          this.sessionId = c.split('crossSessionId=')[1].split(';')[0]
         }
         if (c.includes('csrftoken=')) {
           this.csrfToken = c.split('csrftoken=')[1].split(';')[0]

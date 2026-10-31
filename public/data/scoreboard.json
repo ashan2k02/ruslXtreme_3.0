@@ -1,7 +1,7 @@
 {
   "contestId": 133706,
   "contestName": "IEEEXtreme 20.0 — Rajarata University Delegations",
-  "lastUpdated": "2026-10-31T06:36:46.829Z",
+  "lastUpdated": "2026-10-31T07:05:10.341Z",
   "numRegistered": 10013,
   "numRajarataTeams": 21,
   "isLive": true,
@@ -12,8 +12,8 @@
     {
       "teamId": "csa-242610",
       "teamName": "Algorynth",
-      "score": 511.6,
-      "penalty": 695,
+      "score": 554.1,
+      "penalty": 714,
       "solved": 5,
       "partiallySolved": 2,
       "country": "Sri Lanka",
@@ -21,7 +21,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 98,
+      "worldRank": 111,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -66,9 +66,9 @@
         {
           "id": "Task-52357",
           "name": "Constellation Matrix",
-          "points": 41.9,
-          "score": 0.4928571428571429,
-          "time": "06:21",
+          "points": 84.4,
+          "score": 0.9928571428571429,
+          "time": "06:40",
           "attempts": 1
         },
         {
@@ -88,8 +88,156 @@
           "attempts": 1
         }
       ],
-      "islandRank": 6,
+      "islandRank": 8,
       "universityRank": 1
+    },
+    {
+      "teamId": "csa-239619",
+      "teamName": "AlgoBlaze",
+      "score": 500.63,
+      "penalty": 614,
+      "solved": 5,
+      "partiallySolved": 2,
+      "country": "Sri Lanka",
+      "countryCode": "LK",
+      "university": "Rajarata University of Sri Lanka",
+      "isSriLanka": true,
+      "isRajarata": true,
+      "worldRank": 244,
+      "solvedProblems": [
+        {
+          "id": "Task-52351",
+          "name": "Star Formation",
+          "points": 82.6,
+          "score": 1,
+          "time": "00:41",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52352",
+          "name": "One Junction Box",
+          "points": 91.7,
+          "score": 1,
+          "time": "02:53",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52354",
+          "name": "Orbital Rendezvous",
+          "points": 90.9,
+          "score": 1,
+          "time": "03:41",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52355",
+          "name": "Quantum Telemetry",
+          "points": 72.5,
+          "score": 1,
+          "time": "04:24",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52356",
+          "name": "Deep Space Beacon",
+          "points": 90,
+          "score": 1,
+          "time": "06:56",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52357",
+          "name": "Constellation Matrix",
+          "points": 29.8,
+          "score": 0.35000000000000003,
+          "time": "06:14",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52381",
+          "name": "Chronos Calibration",
+          "points": 0,
+          "score": 0,
+          "time": "00:11",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52436",
+          "name": "Space Station Navigation (Game)",
+          "points": 43.2,
+          "score": 0.49145783620512823,
+          "time": "05:31",
+          "attempts": 1
+        }
+      ],
+      "islandRank": 35,
+      "universityRank": 2
+    },
+    {
+      "teamId": "csa-237591",
+      "teamName": "AthiMataHathi",
+      "score": 459.9,
+      "penalty": 615,
+      "solved": 4,
+      "partiallySolved": 2,
+      "country": "Sri Lanka",
+      "countryCode": "LK",
+      "university": "Rajarata University of Sri Lanka",
+      "isSriLanka": true,
+      "isRajarata": true,
+      "worldRank": 336,
+      "solvedProblems": [
+        {
+          "id": "Task-52351",
+          "name": "Star Formation",
+          "points": 82.6,
+          "score": 1,
+          "time": "02:21",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52352",
+          "name": "One Junction Box",
+          "points": 91.7,
+          "score": 1,
+          "time": "02:02",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52354",
+          "name": "Orbital Rendezvous",
+          "points": 90.9,
+          "score": 1,
+          "time": "03:01",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52355",
+          "name": "Quantum Telemetry",
+          "points": 72.5,
+          "score": 1,
+          "time": "05:28",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52357",
+          "name": "Constellation Matrix",
+          "points": 84.4,
+          "score": 0.9928571428571429,
+          "time": "06:51",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52436",
+          "name": "Space Station Navigation (Game)",
+          "points": 37.8,
+          "score": 0.4302892897307693,
+          "time": "04:38",
+          "attempts": 1
+        }
+      ],
+      "islandRank": 56,
+      "universityRank": 3
     },
     {
       "teamId": "csa-240375",
@@ -103,7 +251,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 193,
+      "worldRank": 341,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -154,154 +302,14 @@
           "attempts": 1
         }
       ],
-      "islandRank": 24,
-      "universityRank": 2
-    },
-    {
-      "teamId": "csa-237591",
-      "teamName": "AthiMataHathi",
-      "score": 452.41,
-      "penalty": 598,
-      "solved": 4,
-      "partiallySolved": 2,
-      "country": "Sri Lanka",
-      "countryCode": "LK",
-      "university": "Rajarata University of Sri Lanka",
-      "isSriLanka": true,
-      "isRajarata": true,
-      "worldRank": 202,
-      "solvedProblems": [
-        {
-          "id": "Task-52351",
-          "name": "Star Formation",
-          "points": 82.6,
-          "score": 1,
-          "time": "02:21",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52352",
-          "name": "One Junction Box",
-          "points": 91.7,
-          "score": 1,
-          "time": "02:02",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52354",
-          "name": "Orbital Rendezvous",
-          "points": 90.9,
-          "score": 1,
-          "time": "03:01",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52355",
-          "name": "Quantum Telemetry",
-          "points": 72.5,
-          "score": 1,
-          "time": "05:28",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52357",
-          "name": "Constellation Matrix",
-          "points": 76.9,
-          "score": 0.9047619047619048,
-          "time": "06:34",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52436",
-          "name": "Space Station Navigation (Game)",
-          "points": 37.8,
-          "score": 0.4302892897307693,
-          "time": "04:38",
-          "attempts": 1
-        }
-      ],
-      "islandRank": 29,
-      "universityRank": 3
-    },
-    {
-      "teamId": "csa-239619",
-      "teamName": "AlgoBlaze",
-      "score": 410.63,
-      "penalty": 557,
-      "solved": 4,
-      "partiallySolved": 2,
-      "country": "Sri Lanka",
-      "countryCode": "LK",
-      "university": "Rajarata University of Sri Lanka",
-      "isSriLanka": true,
-      "isRajarata": true,
-      "worldRank": 269,
-      "solvedProblems": [
-        {
-          "id": "Task-52351",
-          "name": "Star Formation",
-          "points": 82.6,
-          "score": 1,
-          "time": "00:41",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52352",
-          "name": "One Junction Box",
-          "points": 91.7,
-          "score": 1,
-          "time": "02:53",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52354",
-          "name": "Orbital Rendezvous",
-          "points": 90.9,
-          "score": 1,
-          "time": "03:41",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52355",
-          "name": "Quantum Telemetry",
-          "points": 72.5,
-          "score": 1,
-          "time": "04:24",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52357",
-          "name": "Constellation Matrix",
-          "points": 29.8,
-          "score": 0.35000000000000003,
-          "time": "06:14",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52381",
-          "name": "Chronos Calibration",
-          "points": 0,
-          "score": 0,
-          "time": "00:11",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52436",
-          "name": "Space Station Navigation (Game)",
-          "points": 43.2,
-          "score": 0.49145783620512823,
-          "time": "05:31",
-          "attempts": 1
-        }
-      ],
-      "islandRank": 43,
+      "islandRank": 57,
       "universityRank": 4
     },
     {
       "teamId": "csa-237026",
       "teamName": "TheVanguard",
-      "score": 397.11,
-      "penalty": 392,
+      "score": 420.18,
+      "penalty": 421,
       "solved": 3,
       "partiallySolved": 3,
       "country": "Sri Lanka",
@@ -309,7 +317,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 294,
+      "worldRank": 399,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -354,9 +362,9 @@
         {
           "id": "Task-52357",
           "name": "Constellation Matrix",
-          "points": 35.8,
-          "score": 0.42142857142857143,
-          "time": "06:36",
+          "points": 58.9,
+          "score": 0.692857142857143,
+          "time": "07:04",
           "attempts": 1
         },
         {
@@ -376,7 +384,7 @@
           "attempts": 1
         }
       ],
-      "islandRank": 48,
+      "islandRank": 72,
       "universityRank": 5
     },
     {
@@ -391,7 +399,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 416,
+      "worldRank": 563,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -458,8 +466,90 @@
           "attempts": 1
         }
       ],
-      "islandRank": 71,
+      "islandRank": 109,
       "universityRank": 6
+    },
+    {
+      "teamId": "csa-237507",
+      "teamName": "Team214",
+      "score": 305.9,
+      "penalty": 472,
+      "solved": 2,
+      "partiallySolved": 3,
+      "country": "Sri Lanka",
+      "countryCode": "LK",
+      "university": "Rajarata University of Sri Lanka",
+      "isSriLanka": true,
+      "isRajarata": true,
+      "worldRank": 757,
+      "solvedProblems": [
+        {
+          "id": "Task-52351",
+          "name": "Star Formation",
+          "points": 82.6,
+          "score": 1,
+          "time": "00:29",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52352",
+          "name": "One Junction Box",
+          "points": 0,
+          "score": 0,
+          "time": "00:39",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52354",
+          "name": "Orbital Rendezvous",
+          "points": 90.9,
+          "score": 1,
+          "time": "06:20",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52355",
+          "name": "Quantum Telemetry",
+          "points": 40.8,
+          "score": 0.5625,
+          "time": "05:40",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52356",
+          "name": "Deep Space Beacon",
+          "points": 72,
+          "score": 0.8,
+          "time": "06:53",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52357",
+          "name": "Constellation Matrix",
+          "points": 19.6,
+          "score": 0.23095238095238094,
+          "time": "06:32",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52381",
+          "name": "Chronos Calibration",
+          "points": 0,
+          "score": 0,
+          "time": "00:02",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52436",
+          "name": "Space Station Navigation (Game)",
+          "points": 0,
+          "score": 0,
+          "time": "05:56",
+          "attempts": 1
+        }
+      ],
+      "islandRank": 150,
+      "universityRank": 7
     },
     {
       "teamId": "csa-237001",
@@ -473,7 +563,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 646,
+      "worldRank": 815,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -540,8 +630,74 @@
           "attempts": 1
         }
       ],
-      "islandRank": 110,
-      "universityRank": 7
+      "islandRank": 155,
+      "universityRank": 8
+    },
+    {
+      "teamId": "csa-240081",
+      "teamName": "ByteBuilders",
+      "score": 260.09,
+      "penalty": 832,
+      "solved": 2,
+      "partiallySolved": 3,
+      "country": "Sri Lanka",
+      "countryCode": "LK",
+      "university": "Rajarata University of Sri Lanka",
+      "isSriLanka": true,
+      "isRajarata": true,
+      "worldRank": 946,
+      "solvedProblems": [
+        {
+          "id": "Task-52351",
+          "name": "Star Formation",
+          "points": 82.6,
+          "score": 1,
+          "time": "07:01",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52352",
+          "name": "One Junction Box",
+          "points": 0,
+          "score": 0,
+          "time": "00:48",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52354",
+          "name": "Orbital Rendezvous",
+          "points": 45.5,
+          "score": 0.5,
+          "time": "06:31",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52355",
+          "name": "Quantum Telemetry",
+          "points": 72.5,
+          "score": 1,
+          "time": "05:01",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52357",
+          "name": "Constellation Matrix",
+          "points": 21.7,
+          "score": 0.25476190476190474,
+          "time": "06:20",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52436",
+          "name": "Space Station Navigation (Game)",
+          "points": 37.9,
+          "score": 0.4313215020128205,
+          "time": "03:01",
+          "attempts": 1
+        }
+      ],
+      "islandRank": 184,
+      "universityRank": 9
     },
     {
       "teamId": "csa-237671",
@@ -555,7 +711,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 795,
+      "worldRank": 947,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -614,8 +770,8 @@
           "attempts": 1
         }
       ],
-      "islandRank": 146,
-      "universityRank": 8
+      "islandRank": 185,
+      "universityRank": 10
     },
     {
       "teamId": "csa-237462",
@@ -629,7 +785,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 809,
+      "worldRank": 960,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -672,8 +828,8 @@
           "attempts": 1
         }
       ],
-      "islandRank": 148,
-      "universityRank": 9
+      "islandRank": 187,
+      "universityRank": 11
     },
     {
       "teamId": "csa-237087",
@@ -687,7 +843,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 852,
+      "worldRank": 1012,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -730,82 +886,8 @@
           "attempts": 1
         }
       ],
-      "islandRank": 153,
-      "universityRank": 10
-    },
-    {
-      "teamId": "csa-237507",
-      "teamName": "Team214",
-      "score": 233.9,
-      "penalty": 419,
-      "solved": 2,
-      "partiallySolved": 2,
-      "country": "Sri Lanka",
-      "countryCode": "LK",
-      "university": "Rajarata University of Sri Lanka",
-      "isSriLanka": true,
-      "isRajarata": true,
-      "worldRank": 913,
-      "solvedProblems": [
-        {
-          "id": "Task-52351",
-          "name": "Star Formation",
-          "points": 82.6,
-          "score": 1,
-          "time": "00:29",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52352",
-          "name": "One Junction Box",
-          "points": 0,
-          "score": 0,
-          "time": "00:39",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52354",
-          "name": "Orbital Rendezvous",
-          "points": 90.9,
-          "score": 1,
-          "time": "06:20",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52355",
-          "name": "Quantum Telemetry",
-          "points": 40.8,
-          "score": 0.5625,
-          "time": "05:40",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52357",
-          "name": "Constellation Matrix",
-          "points": 19.6,
-          "score": 0.23095238095238094,
-          "time": "06:32",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52381",
-          "name": "Chronos Calibration",
-          "points": 0,
-          "score": 0,
-          "time": "00:02",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52436",
-          "name": "Space Station Navigation (Game)",
-          "points": 0,
-          "score": 0,
-          "time": "05:56",
-          "attempts": 1
-        }
-      ],
-      "islandRank": 164,
-      "universityRank": 11
+      "islandRank": 196,
+      "universityRank": 12
     },
     {
       "teamId": "csa-238644",
@@ -819,7 +901,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 961,
+      "worldRank": 1122,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -870,8 +952,8 @@
           "attempts": 1
         }
       ],
-      "islandRank": 182,
-      "universityRank": 12
+      "islandRank": 228,
+      "universityRank": 13
     },
     {
       "teamId": "csa-240305",
@@ -885,7 +967,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 1005,
+      "worldRank": 1157,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -936,8 +1018,82 @@
           "attempts": 1
         }
       ],
-      "islandRank": 189,
-      "universityRank": 13
+      "islandRank": 235,
+      "universityRank": 14
+    },
+    {
+      "teamId": "csa-237666",
+      "teamName": "RUSLCodeX",
+      "score": 202.64,
+      "penalty": 352,
+      "solved": 2,
+      "partiallySolved": 2,
+      "country": "Sri Lanka",
+      "countryCode": "LK",
+      "university": "Rajarata University of Sri Lanka",
+      "isSriLanka": true,
+      "isRajarata": true,
+      "worldRank": 1248,
+      "solvedProblems": [
+        {
+          "id": "Task-52351",
+          "name": "Star Formation",
+          "points": 82.6,
+          "score": 1,
+          "time": "01:09",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52352",
+          "name": "One Junction Box",
+          "points": 0,
+          "score": 0,
+          "time": "01:52",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52354",
+          "name": "Orbital Rendezvous",
+          "points": 0,
+          "score": 0,
+          "time": "03:52",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52356",
+          "name": "Deep Space Beacon",
+          "points": 90,
+          "score": 1,
+          "time": "06:58",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52357",
+          "name": "Constellation Matrix",
+          "points": 29.8,
+          "score": 0.35000000000000003,
+          "time": "06:35",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52381",
+          "name": "Chronos Calibration",
+          "points": 0,
+          "score": 0,
+          "time": "00:12",
+          "attempts": 1
+        },
+        {
+          "id": "Task-52436",
+          "name": "Space Station Navigation (Game)",
+          "points": 0.3,
+          "score": 0.003903295012820513,
+          "time": "05:13",
+          "attempts": 1
+        }
+      ],
+      "islandRank": 247,
+      "universityRank": 15
     },
     {
       "teamId": "csa-240794",
@@ -951,7 +1107,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 1160,
+      "worldRank": 1313,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -986,22 +1142,22 @@
           "attempts": 1
         }
       ],
-      "islandRank": 214,
-      "universityRank": 14
+      "islandRank": 262,
+      "universityRank": 16
     },
     {
       "teamId": "csa-237411",
       "teamName": "NexBit",
-      "score": 177.93,
-      "penalty": 812,
+      "score": 180.5,
+      "penalty": 885,
       "solved": 1,
-      "partiallySolved": 4,
+      "partiallySolved": 5,
       "country": "Sri Lanka",
       "countryCode": "LK",
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 1271,
+      "worldRank": 1410,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -1028,11 +1184,19 @@
           "attempts": 1
         },
         {
+          "id": "Task-52356",
+          "name": "Deep Space Beacon",
+          "points": 2.6,
+          "score": 0.02857142857142857,
+          "time": "06:52",
+          "attempts": 1
+        },
+        {
           "id": "Task-52357",
           "name": "Constellation Matrix",
           "points": 1.4,
           "score": 0.016666666666666666,
-          "time": "06:25",
+          "time": "06:46",
           "attempts": 1
         },
         {
@@ -1052,95 +1216,29 @@
           "attempts": 1
         }
       ],
-      "islandRank": 234,
-      "universityRank": 15
+      "islandRank": 276,
+      "universityRank": 17
     },
     {
-      "teamId": "csa-240081",
-      "teamName": "ByteBuilders",
-      "score": 177.54,
-      "penalty": 416,
+      "teamId": "csa-238613",
+      "teamName": "CodeDragons",
+      "score": 127.07,
+      "penalty": 443,
       "solved": 1,
-      "partiallySolved": 3,
+      "partiallySolved": 1,
       "country": "Sri Lanka",
       "countryCode": "LK",
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 1273,
-      "solvedProblems": [
-        {
-          "id": "Task-52351",
-          "name": "Star Formation",
-          "points": 0,
-          "score": 0,
-          "time": "02:00",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52352",
-          "name": "One Junction Box",
-          "points": 0,
-          "score": 0,
-          "time": "00:48",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52354",
-          "name": "Orbital Rendezvous",
-          "points": 45.5,
-          "score": 0.5,
-          "time": "06:31",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52355",
-          "name": "Quantum Telemetry",
-          "points": 72.5,
-          "score": 1,
-          "time": "05:01",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52357",
-          "name": "Constellation Matrix",
-          "points": 21.7,
-          "score": 0.25476190476190474,
-          "time": "06:20",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52436",
-          "name": "Space Station Navigation (Game)",
-          "points": 37.9,
-          "score": 0.4313215020128205,
-          "time": "03:01",
-          "attempts": 1
-        }
-      ],
-      "islandRank": 235,
-      "universityRank": 16
-    },
-    {
-      "teamId": "csa-237666",
-      "teamName": "RUSLCodeX",
-      "score": 112.64,
-      "penalty": 294,
-      "solved": 1,
-      "partiallySolved": 2,
-      "country": "Sri Lanka",
-      "countryCode": "LK",
-      "university": "Rajarata University of Sri Lanka",
-      "isSriLanka": true,
-      "isRajarata": true,
-      "worldRank": 1869,
+      "worldRank": 1814,
       "solvedProblems": [
         {
           "id": "Task-52351",
           "name": "Star Formation",
           "points": 82.6,
           "score": 1,
-          "time": "01:09",
+          "time": "02:40",
           "attempts": 1
         },
         {
@@ -1148,23 +1246,7 @@
           "name": "One Junction Box",
           "points": 0,
           "score": 0,
-          "time": "01:52",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52354",
-          "name": "Orbital Rendezvous",
-          "points": 0,
-          "score": 0,
-          "time": "03:52",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52357",
-          "name": "Constellation Matrix",
-          "points": 29.8,
-          "score": 0.35000000000000003,
-          "time": "06:35",
+          "time": "04:58",
           "attempts": 1
         },
         {
@@ -1172,20 +1254,20 @@
           "name": "Chronos Calibration",
           "points": 0,
           "score": 0,
-          "time": "00:12",
+          "time": "06:51",
           "attempts": 1
         },
         {
           "id": "Task-52436",
           "name": "Space Station Navigation (Game)",
-          "points": 0.3,
-          "score": 0.003903295012820513,
-          "time": "05:13",
+          "points": 44.5,
+          "score": 0.5068919095000001,
+          "time": "06:47",
           "attempts": 1
         }
       ],
-      "islandRank": 337,
-      "universityRank": 17
+      "islandRank": 325,
+      "universityRank": 18
     },
     {
       "teamId": "csa-239972",
@@ -1199,7 +1281,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 2035,
+      "worldRank": 2183,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -1218,41 +1300,7 @@
           "attempts": 1
         }
       ],
-      "islandRank": 352,
-      "universityRank": 18
-    },
-    {
-      "teamId": "csa-238613",
-      "teamName": "CodeDragons",
-      "score": 82.55,
-      "penalty": 155,
-      "solved": 1,
-      "partiallySolved": 0,
-      "country": "Sri Lanka",
-      "countryCode": "LK",
-      "university": "Rajarata University of Sri Lanka",
-      "isSriLanka": true,
-      "isRajarata": true,
-      "worldRank": 2343,
-      "solvedProblems": [
-        {
-          "id": "Task-52351",
-          "name": "Star Formation",
-          "points": 82.6,
-          "score": 1,
-          "time": "02:40",
-          "attempts": 1
-        },
-        {
-          "id": "Task-52352",
-          "name": "One Junction Box",
-          "points": 0,
-          "score": 0,
-          "time": "04:58",
-          "attempts": 1
-        }
-      ],
-      "islandRank": 377,
+      "islandRank": 363,
       "universityRank": 19
     },
     {
@@ -1267,9 +1315,9 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 4205,
+      "worldRank": 4308,
       "solvedProblems": [],
-      "islandRank": 498,
+      "islandRank": 502,
       "universityRank": 20
     },
     {
@@ -1284,7 +1332,7 @@
       "university": "Rajarata University of Sri Lanka",
       "isSriLanka": true,
       "isRajarata": true,
-      "worldRank": 6935,
+      "worldRank": 6977,
       "solvedProblems": [
         {
           "id": "Task-52351",
@@ -1303,7 +1351,7 @@
           "attempts": 1
         }
       ],
-      "islandRank": 638,
+      "islandRank": 641,
       "universityRank": 21
     }
   ]
