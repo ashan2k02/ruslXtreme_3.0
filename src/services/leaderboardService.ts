@@ -4,12 +4,10 @@ import type {
   ConnectionStatus,
   ScoreboardState,
   ScoreboardPayload,
-  SolvedProblem,
 } from '../types/leaderboard'
 import { demoLeaderboardTeams } from '../data/leaderboard'
 
-const CONTEST_ID = 133706
-const PROXY_ENDPOINT = `/api/csacademy/contest/scoreboard_state/?contestId=${CONTEST_ID}`
+const CENTRAL_ENDPOINT = `/api/leaderboard`
 const SNAPSHOT_ENDPOINT = `/data/scoreboard.json`
 
 let isFetching = false
@@ -22,145 +20,36 @@ let lastFetchPromise: Promise<ScoreboardState> | null = null
 export function isRajarataUniversity(uni?: string | null): boolean {
   if (!uni || typeof uni !== 'string') return false
   const clean = uni.trim().toLowerCase().replace(/\s+/g, ' ')
-  return clean === 'rajarata university of sri lanka' || clean === 'rajarata university'
+  return (
+    clean === 'rajarata university of sri lanka' ||
+    clean === 'rajarata university' ||
+    clean.includes('rajarata university of sri lanka') ||
+    clean.includes('rajarata university')
+  )
 }
 
-function formatMinutesToTime(minutes: number): string {
-  if (minutes == null || isNaN(minutes) || minutes < 0) return '00:00'
-  const hrs = Math.floor(minutes / 60)
-  const mins = Math.floor(minutes % 60)
-  return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`
+export function formatTimestamp(date: Date): string {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-/**
- * Parses raw CS Academy scoreboard state:
- * 1. Computes original official World Rank across all participating teams worldwide.
- * 2. Computes original official Island Rank across all Sri Lankan teams.
- * 3. STRICT FILTER: Keeps ONLY teams belonging to Rajarata University of Sri Lanka.
- * 4. Calculates University Rank strictly within Rajarata teams.
- */
-export function parseCSAcademyRawState(raw: any): LeaderboardTeam[] {
-  if (!raw || !raw.state || !Array.isArray(raw.state.contestuser)) {
-    return []
-  }
-
-  const contestUsers = raw.state.contestuser
-  const publicUsers = Array.isArray(raw.state.publicuser) ? raw.state.publicuser : []
-  const contestInfo = raw.state.contest && typeof raw.state.contest === 'object' ? raw.state.contest : {}
-  const startTime = typeof contestInfo.startTime === 'number' ? contestInfo.startTime : 1793404800.0
-
-  const publicUserMap = new Map<number, any>()
-  for (const pu of publicUsers) {
-    if (pu && pu.id != null) {
-      publicUserMap.set(pu.id, pu)
-    }
-  }
-
-  const allOfficialTeams: LeaderboardTeam[] = []
-
-  for (const cu of contestUsers) {
-    const teamType = cu.ieeeTeamType ?? 1
-    if (teamType !== 1 && teamType !== 2) {
-      continue
-    }
-
-    const pu = publicUserMap.get(cu.userId) || {}
-    const teamName = pu.name || pu.username || `Team ${cu.userId}`
-    const countryId = pu.countryId != null ? Number(pu.countryId) : null
-    const university = (cu.university || '').trim()
-    const isSriLanka = countryId === 211 || (pu.country && String(pu.country).toLowerCase() === 'sri lanka')
-    const isRajarata = isRajarataUniversity(university)
-
-    const solvedProblems: SolvedProblem[] = []
-    let solvedCount = 0
-    let partialCount = 0
-
-    if (cu.scores && typeof cu.scores === 'object') {
-      const taskEntries = Object.entries(cu.scores)
-      for (const [taskId, tScoreRaw] of taskEntries) {
-        const tScore = tScoreRaw as any
-        const scoreFrac = typeof tScore.score === 'number' ? tScore.score : 0
-        const attempts = typeof tScore.penalty === 'number' ? Math.max(1, tScore.penalty) : 1
-        const scoreTimeSec = typeof tScore.scoreTime === 'number' ? tScore.scoreTime : 0
-
-        let relMinutes = 0
-        if (scoreTimeSec > 0 && startTime > 0 && scoreTimeSec >= startTime) {
-          relMinutes = (scoreTimeSec - startTime) / 60
-        } else if (scoreTimeSec > 0 && scoreTimeSec < 2000) {
-          relMinutes = scoreTimeSec
-        }
-
-        const points = Math.round(scoreFrac * 100 * 10) / 10
-
-        if (scoreFrac >= 0.999) {
-          solvedCount++
-        } else if (scoreFrac > 0) {
-          partialCount++
-        }
-
-        solvedProblems.push({
-          id: `Task-${taskId}`,
-          name: `Challenge ${taskId}`,
-          points,
-          score: scoreFrac,
-          time: formatMinutesToTime(relMinutes),
-          attempts,
-        })
-      }
-    }
-
-    const totalScore = typeof cu.totalScore === 'number' ? Math.round(cu.totalScore * 100) / 100 : 0
-    const penalty = typeof cu.penalty === 'number' ? Math.round(cu.penalty * 100) / 100 : 0
-
-    allOfficialTeams.push({
-      teamId: `csa-${cu.id || cu.userId}`,
-      teamName,
-      score: totalScore,
-      penalty,
-      solved: solvedCount,
-      partiallySolved: partialCount,
-      country: isSriLanka ? 'Sri Lanka' : 'International',
-      countryCode: isSriLanka ? 'LK' : 'GL',
-      university: isRajarata ? 'Rajarata University of Sri Lanka' : university,
-      isSriLanka,
-      isRajarata,
-      worldRank: 0,
-      solvedProblems,
-    })
-  }
-
-  // CS Academy official sort comparator across the complete dataset
-  allOfficialTeams.sort((a, b) => {
-    const diff = b.score - a.score
-    if (Math.abs(diff) > 1e-4) return diff
-    return a.penalty - b.penalty
-  })
-
-  // Assign official global World Rank and national Island Rank
-  let slRankCounter = 1
-  allOfficialTeams.forEach((team, index) => {
-    team.worldRank = index + 1
-    if (team.isSriLanka) {
-      team.islandRank = slRankCounter++
-    }
-  })
-
-  // CRITICAL REQUIREMENT: Strictly filter to include ONLY Rajarata University teams
-  const ruslTeams = allOfficialTeams.filter((team) => team.isRajarata)
-
-  // Calculate University Rank (1 to N) strictly among Rajarata University teams
-  ruslTeams.forEach((team, index) => {
-    team.universityRank = index + 1
-  })
-
-  return ruslTeams
+export function formatTimeAgo(date: Date | null): string {
+  if (!date) return 'Never'
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
+  if (seconds < 5) return 'Just now'
+  if (seconds < 60) return `${seconds}s ago`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes === 1) return '1 min ago'
+  if (minutes < 60) return `${minutes} mins ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours === 1) return '1 hr ago'
+  return `${hours} hrs ago`
 }
 
 /**
  * Fetch the latest scoreboard data following the reliable fallback hierarchy:
- * 1. Live CS Academy proxy endpoint
+ * 1. Centralized server-side sync service (/api/leaderboard)
  * 2. Static verified scoreboard snapshot (/data/scoreboard.json)
- * 3. In-memory demo data
+ * 3. In-memory demo dataset
  *
  * Enforces that only Rajarata University teams are ever accepted into state.
  */
@@ -173,40 +62,66 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
   lastFetchPromise = (async () => {
     const now = new Date()
 
-    // 1. Attempt to fetch live from CS Academy via dev server proxy
+    // 1. Attempt to fetch from centralized server-side sync service
     try {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 8000)
+      const timeoutId = setTimeout(() => controller.abort(), 6000)
 
-      const liveResponse = await fetch(PROXYEndpointWithCacheBust(), {
-        headers: {
-          'x-requested-with': 'XMLHttpRequest',
-          Accept: 'application/json, text/plain, */*',
-        },
-        signal: controller.signal,
-      })
+      let res: Response
+      if (force) {
+        // Trigger manual upstream refresh
+        res = await fetch(`${CENTRAL_ENDPOINT}/sync`, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        })
+      } else {
+        // Fetch cached shared state
+        res = await fetch(`${CENTRAL_ENDPOINT}?_t=${Date.now()}`, {
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        })
+      }
 
       clearTimeout(timeoutId)
 
-      if (liveResponse.ok) {
-        const rawJson = await liveResponse.json()
-        if (rawJson && rawJson.state && Array.isArray(rawJson.state.contestuser)) {
-          const parsedRuslTeams = parseCSAcademyRawState(rawJson)
-          if (parsedRuslTeams.length > 0) {
-            return {
-              status: 'connected' as ConnectionStatus,
-              lastUpdated: now,
-              lastUpdatedFormatted: formatTimestamp(now),
-              sourceName: 'CS Academy Live Scoring Engine',
-              totalRegistered: parsedRuslTeams.length,
-              teams: parsedRuslTeams,
-              error: null,
+      if (res.ok) {
+        const payload = await res.json()
+        if (payload && Array.isArray(payload.teams)) {
+          // Strictly validate teams
+          const ruslTeams = payload.teams.filter(
+            (t: any) => isRajarataUniversity(t.university) || t.isRajarata
+          )
+
+          ruslTeams.forEach((t: any, idx: number) => {
+            t.university = 'Rajarata University of Sri Lanka'
+            t.isRajarata = true
+            t.isSriLanka = true
+            t.country = 'Sri Lanka'
+            t.countryCode = 'LK'
+            if (!t.universityRank) {
+              t.universityRank = idx + 1
             }
+          })
+
+          const updateDate = payload.lastUpdated ? new Date(payload.lastUpdated) : now
+          const status: ConnectionStatus = payload.status || 'connected'
+
+          return {
+            status,
+            lastUpdated: updateDate,
+            lastUpdatedFormatted: formatTimestamp(updateDate),
+            sourceName: payload.sourceName || (payload.authenticated ? 'CS Academy Authenticated Engine' : 'CS Academy Live Engine'),
+            authenticated: payload.authenticated ?? false,
+            totalRegistered: payload.numRegistered || ruslTeams.length,
+            numRajarataTeams: ruslTeams.length,
+            teams: ruslTeams,
+            error: payload.error || null,
           }
         }
       }
     } catch {
-      // Live fetch failed or timed out, proceed to verified snapshot
+      // Server-side endpoint unavailable or network error, proceed to snapshot fallback
     }
 
     // 2. Attempt to fetch verified pre-cached snapshot (/data/scoreboard.json)
@@ -218,12 +133,10 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
       if (snapshotResponse.ok) {
         const snapshotData: ScoreboardPayload = await snapshotResponse.json()
         if (snapshotData && Array.isArray(snapshotData.teams) && snapshotData.teams.length > 0) {
-          // Strict validation: enforce that every team is a Rajarata University team
           const strictlyRuslTeams = snapshotData.teams.filter(
             (t) => isRajarataUniversity(t.university) || t.isRajarata
           )
 
-          // Ensure university name is uniformly formatted
           strictlyRuslTeams.forEach((t, idx) => {
             t.university = 'Rajarata University of Sri Lanka'
             t.country = 'Sri Lanka'
@@ -241,14 +154,16 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
             lastUpdated: snapTime,
             lastUpdatedFormatted: formatTimestamp(snapTime),
             sourceName: 'CS Academy Verified Standings Snapshot',
-            totalRegistered: strictlyRuslTeams.length,
+            authenticated: Boolean(snapshotData.authenticated),
+            totalRegistered: snapshotData.numRegistered || strictlyRuslTeams.length,
+            numRajarataTeams: strictlyRuslTeams.length,
             teams: strictlyRuslTeams,
             error: null,
           }
         }
       }
     } catch {
-      // Snapshot fetch failed, fallback to demo dataset
+      // Snapshot fetch failed, fallback to demo mode
     }
 
     // 3. Fallback to demo dataset (strictly Rajarata teams only)
@@ -258,7 +173,9 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
       lastUpdated: now,
       lastUpdatedFormatted: formatTimestamp(now),
       sourceName: 'Simulated Preview Feed',
+      authenticated: false,
       totalRegistered: strictlyDemoRusl.length,
+      numRajarataTeams: strictlyDemoRusl.length,
       teams: strictlyDemoRusl,
       error: 'Scoreboard streaming in demo mode.',
     }
@@ -267,28 +184,6 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
   })
 
   return lastFetchPromise
-}
-
-function PROXYEndpointWithCacheBust(): string {
-  const sep = PROXY_ENDPOINT.includes('?') ? '&' : '?'
-  return `${PROXY_ENDPOINT}${sep}_t=${Date.now()}`
-}
-
-export function formatTimestamp(date: Date): string {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-}
-
-export function formatTimeAgo(date: Date | null): string {
-  if (!date) return 'Never'
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
-  if (seconds < 10) return 'Just now'
-  if (seconds < 60) return `${seconds}s ago`
-  const minutes = Math.floor(seconds / 60)
-  if (minutes === 1) return '1 min ago'
-  if (minutes < 60) return `${minutes} mins ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours === 1) return '1 hr ago'
-  return `${hours} hrs ago`
 }
 
 /**
@@ -323,9 +218,6 @@ export function getScopedLeaderboard(
   })
 
   // Sort according to category rank:
-  // - World tab: sorted by worldRank ASC (preserves global standing order)
-  // - Island tab: sorted by islandRank ASC (preserves island standing order)
-  // - University tab: sorted by universityRank ASC (preserves university standing order)
   mapped.sort((a, b) => {
     if (category === 'world') {
       return a.worldRank - b.worldRank

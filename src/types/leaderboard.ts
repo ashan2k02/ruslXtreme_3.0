@@ -1,6 +1,6 @@
 export type LeaderboardCategory = 'world' | 'island' | 'university'
 
-export type ConnectionStatus = 'connected' | 'updating' | 'cached' | 'demo_mode'
+export type ConnectionStatus = 'connected' | 'syncing' | 'cached' | 'error' | 'demo_mode'
 
 export interface SolvedProblem {
   id: string
@@ -35,7 +35,9 @@ export interface ScoreboardState {
   lastUpdated: Date | null
   lastUpdatedFormatted: string
   sourceName: string
+  authenticated?: boolean
   totalRegistered?: number
+  numRajarataTeams?: number
   teams: LeaderboardTeam[]
   error?: string | null
 }
@@ -45,8 +47,10 @@ export interface ScoreboardPayload {
   contestName: string
   lastUpdated: string
   numRegistered?: number
+  numRajarataTeams?: number
   isLive: boolean
   isRealData: boolean
+  authenticated?: boolean
   source: string
   teams: LeaderboardTeam[]
 }

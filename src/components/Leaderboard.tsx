@@ -67,13 +67,13 @@ export function Leaderboard() {
     }
   }, [])
 
-  // Initial load and periodic auto-refresh (every 60s)
+  // Initial load and periodic auto-refresh (every 5s as per live specification)
   useEffect(() => {
     loadScoreboard(false)
 
     const syncInterval = setInterval(() => {
       loadScoreboard(false)
-    }, 60000)
+    }, 5000)
 
     return () => clearInterval(syncInterval)
   }, [loadScoreboard])
@@ -139,8 +139,9 @@ export function Leaderboard() {
         <div className="leaderboard-demo-banner__left">
           <span className="leaderboard-live-dot">
             {status === 'connected' && <span className="pulse-dot pulse-dot--live" />}
+            {status === 'syncing' && <span className="pulse-dot pulse-dot--syncing" />}
             {status === 'cached' && <span className="pulse-dot pulse-dot--cached" />}
-            {status === 'updating' && <span className="pulse-dot pulse-dot--updating" />}
+            {status === 'error' && <span className="pulse-dot pulse-dot--error" />}
             {status === 'demo_mode' && <span className="pulse-dot" />}
           </span>
 
@@ -149,9 +150,19 @@ export function Leaderboard() {
               LIVE SCOREBOARD
             </span>
           )}
+          {status === 'syncing' && (
+            <span className="leaderboard-status-badge leaderboard-status-badge--syncing">
+              SYNCING
+            </span>
+          )}
           {status === 'cached' && (
             <span className="leaderboard-status-badge leaderboard-status-badge--cached">
-              OFFICIAL STANDINGS
+              CACHED DATA
+            </span>
+          )}
+          {status === 'error' && (
+            <span className="leaderboard-status-badge leaderboard-status-badge--error">
+              CONNECTION ISSUE
             </span>
           )}
           {status === 'demo_mode' && (
@@ -163,12 +174,22 @@ export function Leaderboard() {
           <p className="leaderboard-demo-copy">
             {status === 'connected' && (
               <>
-                <strong>CS Academy Live Scoring Engine.</strong> Real-time standings for Rajarata University of Sri Lanka delegations.
+                <strong>CS Academy Live Scoring Engine.</strong> Real-time synchronized standings for Rajarata University of Sri Lanka delegations.
+              </>
+            )}
+            {status === 'syncing' && (
+              <>
+                <strong>Synchronizing with CS Academy.</strong> Updating live scores and rankings from official scoring engine.
               </>
             )}
             {status === 'cached' && (
               <>
-                <strong>CS Academy Official Standings.</strong> Synchronized standings for Rajarata University of Sri Lanka teams. Auto-sync active.
+                <strong>CS Academy Official Standings (Cached).</strong> Displaying verified official standings snapshot. Auto-sync active.
+              </>
+            )}
+            {status === 'error' && (
+              <>
+                <strong>Connection to CS Academy delayed.</strong> Preserving last verified standings snapshot. Retrying with exponential backoff.
               </>
             )}
             {status === 'demo_mode' && (

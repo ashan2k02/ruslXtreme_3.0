@@ -415,10 +415,14 @@ button { border: 0; font: inherit; cursor: pointer; }
 .leaderboard-live-dot { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; }
 .leaderboard-status-badge, .leaderboard-demo-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font: 600 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
 .leaderboard-status-badge--connected { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.45); color: #34d399; }
+.leaderboard-status-badge--syncing { background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc; }
 .leaderboard-status-badge--cached { background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8; }
+.leaderboard-status-badge--error { background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(239, 68, 68, 0.45); color: #f87171; }
 .leaderboard-status-badge--demo { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.45); color: #fbbf24; }
 .pulse-dot--live { background: #10b981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, .2), 0 0 8px rgba(16, 185, 129, .8) !important; }
+.pulse-dot--syncing { background: #c084fc !important; box-shadow: 0 0 0 3px rgba(168, 85, 247, .25), 0 0 8px rgba(168, 85, 247, .8) !important; }
 .pulse-dot--cached { background: #38bdf8 !important; box-shadow: 0 0 0 3px rgba(56, 189, 248, .2), 0 0 8px rgba(56, 189, 248, .8) !important; }
+.pulse-dot--error { background: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, .25), 0 0 8px rgba(239, 68, 68, .8) !important; }
 .pulse-dot--updating { background: #a855f7 !important; box-shadow: 0 0 0 3px rgba(168, 85, 247, .2), 0 0 8px rgba(168, 85, 247, .8) !important; animation: spin 1s linear infinite; }
 .leaderboard-demo-copy { margin: 0; color: #cbd5e1; font-size: 13px; line-height: 1.5; }
 .leaderboard-demo-copy strong { color: #f8fafc; font-weight: 600; }
