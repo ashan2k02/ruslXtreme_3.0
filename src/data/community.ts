@@ -17,6 +17,8 @@ export interface SponsorSlot {
   logoAlt?: string
   website?: string
   description?: string
+  tagline?: string
+  headquarters?: string
 }
 
 export const faqItems: FaqItem[] = [
@@ -64,9 +66,22 @@ export const faqItems: FaqItem[] = [
   },
 ]
 
-// Neutral placeholders only — no sponsor names, logos, or URLs are invented.
-// When verified sponsors are confirmed, update state to 'verified' and populate logo and website.
+// Official verified sponsors and neutral tier placeholders.
 export const sponsorSlots: SponsorSlot[] = [
+  {
+    id: 'kaya-intelligence',
+    tier: 'Silver Tier',
+    category: 'OFFICIAL SILVER SPONSOR',
+    name: 'KAYA Intelligence, Inc.',
+    state: 'verified',
+    logo: '/assets/sponsors/kaya-intelligence-logo.png',
+    logoAlt: 'KAYA Intelligence, Inc. Official Logo',
+    website: 'https://kayaintelligence.com/',
+    tagline: 'The Platform Where AI Gets to Work.',
+    description:
+      'KAYA Intelligence, Inc. is an Enterprise AI Execution Platform designed to help business-critical processes operate at enterprise scale. Built for the world’s largest regulated enterprises, Kaya enables organizations to operationalize AI and reinvent how work gets done.',
+    headquarters: 'Jersey City, New Jersey, USA',
+  },
   {
     id: 'founding',
     tier: 'Tier 01',

@@ -3,6 +3,8 @@ import {
   Activity,
   ArrowDown,
   ArrowUpRight,
+  Award,
+  Building2,
   ChevronRight,
   CircleDot,
   Code2,
@@ -10,6 +12,7 @@ import {
   Image as ImageIcon,
   Layers3,
   Mail,
+  MapPin,
   Menu,
   Radio,
   ShieldCheck,
@@ -492,78 +495,122 @@ function App() {
           <div className="shell-width partners-showcase">
             <div className="section-topline">
               <div className="section-index">08 <span>/</span> ALLIES</div>
-              <StatusPill tone="placeholder">Official partners pending</StatusPill>
+              <StatusPill tone="live">Official Silver Sponsor Confirmed</StatusPill>
             </div>
             <div className="partners-showcase__heading">
               <SectionHeading
                 eyebrow="Sponsors & partners"
-                title="Good work travels farther together."
-                copy="This showcase is ready for official sponsor tiers, names, logos, and verified links. Until then, it stays intentionally neutral—no company is presented as a confirmed partner."
+                title="Fueling the next generation of problem solvers."
+                copy="Empowering students and competitive programmers through premier industry collaboration. We proudly welcome KAYA Intelligence, Inc. as an Official Silver Sponsor for RUSLXTREME 3.0."
               />
-              <div className="partners-showcase__mark">
-                <Layers3 size={29} />
-                <span>UPLINK<br />PENDING</span>
+              <div className="partners-showcase__mark partners-showcase__mark--silver">
+                <Award size={30} />
+                <span>SILVER<br />SPONSOR</span>
               </div>
             </div>
 
-            <div className="partners-tba-banner">
-              <div className="partners-tba-banner__icon">
-                <Sparkles size={18} />
-              </div>
-              <div className="partners-tba-banner__content">
-                <strong>Official sponsors and partners to be announced</strong>
-                <p>
-                  Tier allocations across Founding, Technology, and Community partnerships are being prepared.
-                  Verified sponsor profiles, brand marks, and website links will be published once agreements are confirmed.
-                </p>
-              </div>
-              <a className="button button--ghost" href="#contact" onClick={scrollTo}>
-                Partner with the mission <ArrowUpRight size={15} />
-              </a>
+            {/* Featured Official Silver Sponsor Card */}
+            <div className="sponsors-featured">
+              {sponsorSlots.filter((s) => s.state === 'verified').map((sponsor) => (
+                <article className="sponsor-feature-card sponsor-feature-card--silver" key={sponsor.id}>
+                  <div className="sponsor-feature-card__shimmer" />
+                  <div className="sponsor-feature-card__header-bar">
+                    <div className="sponsor-tier-badge sponsor-tier-badge--silver">
+                      <Sparkles size={13} />
+                      <span>{sponsor.category}</span>
+                    </div>
+                    <span className="sponsor-feature-card__status">
+                      <span className="pulse-dot" /> Confirmed Partner
+                    </span>
+                  </div>
+
+                  <div className="sponsor-feature-card__grid">
+                    <div className="sponsor-feature-card__logo-panel">
+                      <div className="sponsor-feature-card__logo-box">
+                        <img
+                          src={sponsor.logo}
+                          alt={sponsor.logoAlt || `${sponsor.name} logo`}
+                          className="sponsor-feature-card__logo-img"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                      {sponsor.website && (
+                        <a
+                          href={sponsor.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="button button--silver"
+                          aria-label={`Visit official website of ${sponsor.name}`}
+                        >
+                          Visit Official Website <ArrowUpRight size={15} />
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="sponsor-feature-card__info">
+                      <div className="sponsor-feature-card__headline">
+                        <h3>{sponsor.name}</h3>
+                        {sponsor.tagline && (
+                          <p className="sponsor-feature-card__tagline">“{sponsor.tagline}”</p>
+                        )}
+                      </div>
+
+                      {sponsor.description && (
+                        <p className="sponsor-feature-card__desc">{sponsor.description}</p>
+                      )}
+
+                      <div className="sponsor-feature-card__meta-list">
+                        {sponsor.headquarters && (
+                          <div className="sponsor-feature-card__meta-item">
+                            <MapPin size={15} className="sponsor-meta-icon" />
+                            <span><strong>Headquarters:</strong> {sponsor.headquarters}</span>
+                          </div>
+                        )}
+                        <div className="sponsor-feature-card__meta-item">
+                          <Building2 size={15} className="sponsor-meta-icon" />
+                          <span><strong>Platform:</strong> Enterprise AI Execution Platform</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
 
-            <div className="sponsor-grid">
-              {sponsorSlots.map((slot) => {
-                const isVerified = slot.state === 'verified'
-                return (
-                  <article className={`sponsor-card${isVerified ? ' sponsor-card--verified' : ''}`} key={slot.id}>
+            {/* Additional Sponsor & Partnership Tiers */}
+            <div className="partners-pending-section">
+              <div className="partners-pending-header">
+                <div>
+                  <span className="partners-pending-eyebrow">Partnership Opportunities</span>
+                  <h4>Additional Sponsorship Tiers</h4>
+                </div>
+                <a className="button button--ghost" href="#contact" onClick={scrollTo}>
+                  Partner with the mission <ArrowUpRight size={15} />
+                </a>
+              </div>
+
+              <div className="sponsor-grid">
+                {sponsorSlots.filter((s) => s.state === 'pending').map((slot) => (
+                  <article className="sponsor-card sponsor-card--pending" key={slot.id}>
                     <div className="sponsor-card__top">
                       <span>{slot.tier}</span>
-                      <StatusPill tone={isVerified ? 'live' : 'placeholder'}>
-                        {isVerified ? 'Verified' : 'Pending'}
-                      </StatusPill>
+                      <StatusPill tone="placeholder">Pending</StatusPill>
                     </div>
                     <div className="sponsor-card__logo">
-                      {isVerified && slot.logo ? (
-                        <img src={slot.logo} alt={slot.logoAlt || `${slot.name} logo`} className="sponsor-card__logo-img" loading="lazy" decoding="async" />
-                      ) : (
-                        <>
-                          <Layers3 size={25} />
-                          <span>LOGO<br />PENDING</span>
-                        </>
-                      )}
+                      <Layers3 size={25} />
+                      <span>SLOT<br />AVAILABLE</span>
                     </div>
                     <div>
                       <span className="sponsor-card__category">{slot.category}</span>
                       <h3>{slot.name}</h3>
-                      {slot.description && <p className="sponsor-card__desc">{slot.description}</p>}
                     </div>
-                    {isVerified && slot.website ? (
-                      <a
-                        href={slot.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="sponsor-card__link"
-                        aria-label={`Visit official website of ${slot.name}`}
-                      >
-                        Visit website <ArrowUpRight size={14} />
-                      </a>
-                    ) : (
-                      <span className="sponsor-card__note">Official name, logo, and website to be announced.</span>
-                    )}
+                    <span className="sponsor-card__note">
+                      Tier inquiries open. Connect via mission contact.
+                    </span>
                   </article>
-                )
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </section>
