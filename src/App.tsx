@@ -17,12 +17,12 @@ import {
   Radio,
   ShieldCheck,
   Sparkles,
-  Trophy,
   Users,
   X,
 } from 'lucide-react'
 import { BrandMark } from './components/BrandMark'
 import { SectionHeading } from './components/SectionHeading'
+import { Leaderboard } from './components/Leaderboard'
 import { navItems, ruleGroups } from './data'
 import { committeeLeadership, committeeTeams } from './data/committee'
 import { archiveEvents, archiveItems } from './data/archive'
@@ -325,16 +325,20 @@ function App() {
 
         <section className="section section--score" id="leaderboard">
           <div className="shell-width">
-            <div className="section-topline"><div className="section-index">04 <span>/</span> RESULTS</div><StatusPill>Awaiting official data</StatusPill></div>
+            <div className="section-topline"><div className="section-index">04 <span>/</span> RESULTS</div><StatusPill tone="live">Live Leaderboard (Demo Mode)</StatusPill></div>
             <div className="score-layout">
-              <SectionHeading eyebrow="Leaderboard" title="The scoreboard is quiet. For now." copy="No official competition results were provided. When verified scores arrive, this view is designed to make every position legible." />
-              <div className="score-legend"><span><i className="legend-dot legend-dot--cyan" />Live surface</span><span><i className="legend-dot legend-dot--purple" />Verified data only</span></div>
+              <SectionHeading
+                eyebrow="Live leaderboard"
+                title="Track the mission progress."
+                copy="Track the mission progress. Discover the teams leading the competition across World, Island, and University rankings."
+              />
+              <div className="score-legend">
+                <span><i className="legend-dot legend-dot--cyan" />Simulated Stream</span>
+                <span><i className="legend-dot legend-dot--purple" />Three-Tier Rankings</span>
+              </div>
             </div>
-            <div className="leaderboard-panel">
-              <div className="leaderboard-panel__header"><span>Rank</span><span>Team / competitor</span><span>Score</span><span>Penalty</span></div>
-              <div className="leaderboard-empty"><div className="trophy-ring"><Trophy size={26} /></div><h3>Official results will appear here</h3><p>This is an honest empty state — not a sample leaderboard. No team names or scores are presented as real until the organizers confirm them.</p><a href="#contact" onClick={scrollTo} className="text-link">Share an official update <ArrowUpRight size={15} /></a></div>
-              <div className="leaderboard-panel__footer"><span><span className="pulse-dot" />Data stream idle</span><span>Last sync — not available</span></div>
-            </div>
+
+            <Leaderboard />
           </div>
         </section>
 
