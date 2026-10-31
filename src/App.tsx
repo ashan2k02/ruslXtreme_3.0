@@ -330,7 +330,7 @@ function App() {
               <SectionHeading
                 eyebrow="Live leaderboard"
                 title="Track the mission progress."
-                copy="Track the mission progress. Discover the teams leading the competition across World, Island, and University rankings."
+                copy="Track Rajarata University of Sri Lanka teams competing in IEEEXtreme 20.0. Compare real-time mission standings across official World, Island, and Campus rankings."
               />
               <div className="score-legend">
                 <span><i className="legend-dot legend-dot--cyan" />CS Academy Stream</span>

@@ -25,6 +25,7 @@ import {
   formatTimeAgo,
   formatTimestamp,
   getScopedLeaderboard,
+  isRajarataUniversity,
 } from '../services/leaderboardService'
 import { demoLeaderboardTeams } from '../data/leaderboard'
 
@@ -33,8 +34,10 @@ export function Leaderboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTeam, setSelectedTeam] = useState<LeaderboardTeam | null>(null)
 
-  // Leaderboard data state
-  const [teams, setTeams] = useState<LeaderboardTeam[]>(demoLeaderboardTeams)
+  // Leaderboard data state (strictly Rajarata University teams)
+  const [teams, setTeams] = useState<LeaderboardTeam[]>(() =>
+    demoLeaderboardTeams.filter((t) => isRajarataUniversity(t.university) || t.isRajarata)
+  )
   const [status, setStatus] = useState<ConnectionStatus>('cached')
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [sourceName, setSourceName] = useState<string>('CS Academy Scoreboard')
@@ -46,7 +49,11 @@ export function Leaderboard() {
     setIsUpdating(true)
     try {
       const result: ScoreboardState = await fetchScoreboardData(isManual)
-      setTeams(result.teams)
+      // Strictly guarantee only Rajarata University teams enter state
+      const ruslOnly = result.teams.filter(
+        (t) => isRajarataUniversity(t.university) || t.isRajarata
+      )
+      setTeams(ruslOnly)
       setStatus(result.status)
       setLastUpdated(result.lastUpdated)
       setSourceName(result.sourceName)
@@ -82,23 +89,31 @@ export function Leaderboard() {
     return () => clearInterval(timeInterval)
   }, [lastUpdated])
 
-  // Get ranked teams for current category & search
+  // Get strictly Rajarata teams for current category & search
   const rankedTeams = useMemo(() => {
     return getScopedLeaderboard(teams, activeCategory, searchQuery)
   }, [teams, activeCategory, searchQuery])
 
-  // Counts for tabs
-  const categoryCounts = useMemo(() => {
-    const worldCount = teams.length
-    const islandCount = teams.filter((t) => t.isSriLanka).length
-    const uniCount = teams.filter((t) => t.isRajarata).length
-    return { worldCount, islandCount, uniCount }
-  }, [teams])
+  // Total count of Rajarata teams
+  const totalRajarataTeams = teams.length
 
-  // Top 3 for podium (only shown when not actively searching and at least 3 teams available)
+  // Top 3 for podium (strictly Rajarata teams)
   const showPodium = searchQuery.trim() === '' && rankedTeams.length >= 3
   const topThree = showPodium ? rankedTeams.slice(0, 3) : []
   const tableTeams = showPodium ? rankedTeams.slice(3) : rankedTeams
+
+  // Helper for podium badge text
+  const getPodiumBadgeText = (team: LeaderboardTeam, position: 1 | 2 | 3) => {
+    if (activeCategory === 'world') {
+      return `WORLD #${team.worldRank}`
+    }
+    if (activeCategory === 'island') {
+      return `ISLAND #${team.islandRank ?? 'N/A'}`
+    }
+    if (position === 1) return '#01 RUSL CHAMPION'
+    if (position === 2) return '#02 RUSL SILVER'
+    return '#03 RUSL BRONZE'
+  }
 
   // Close modal on Escape
   useEffect(() => {
@@ -148,12 +163,12 @@ export function Leaderboard() {
           <p className="leaderboard-demo-copy">
             {status === 'connected' && (
               <>
-                <strong>CS Academy Live Scoring Engine.</strong> Connected to official IEEEXtreme 20.0 competition telemetry.
+                <strong>CS Academy Live Scoring Engine.</strong> Real-time standings for Rajarata University of Sri Lanka delegations.
               </>
             )}
             {status === 'cached' && (
               <>
-                <strong>CS Academy Official Standings.</strong> Synchronized from verified scoring snapshot. Auto-sync active.
+                <strong>CS Academy Official Standings.</strong> Synchronized standings for Rajarata University of Sri Lanka teams. Auto-sync active.
               </>
             )}
             {status === 'demo_mode' && (
@@ -202,7 +217,7 @@ export function Leaderboard() {
           >
             <span className="leaderboard-tab__label">World Rank</span>
             <span className="leaderboard-tab__count">
-              {categoryCounts.worldCount > 0 ? `${categoryCounts.worldCount} Teams` : 'All Regions'}
+              {totalRajarataTeams > 0 ? `${totalRajarataTeams} RUSL Teams` : 'Global Standing'}
             </span>
           </button>
 
@@ -215,7 +230,7 @@ export function Leaderboard() {
           >
             <span className="leaderboard-tab__label">Island Rank</span>
             <span className="leaderboard-tab__count">
-              {categoryCounts.islandCount > 0 ? `${categoryCounts.islandCount} SL Teams` : 'Sri Lanka'}
+              {totalRajarataTeams > 0 ? `${totalRajarataTeams} RUSL Teams` : 'Sri Lanka Standing'}
             </span>
           </button>
 
@@ -228,21 +243,21 @@ export function Leaderboard() {
           >
             <span className="leaderboard-tab__label">University Rank</span>
             <span className="leaderboard-tab__count">
-              {categoryCounts.uniCount > 0 ? `${categoryCounts.uniCount} Rajarata Teams` : 'Rajarata Uni'}
+              {totalRajarataTeams > 0 ? `${totalRajarataTeams} RUSL Teams` : 'Campus Standings'}
             </span>
           </button>
         </div>
 
-        {/* Search Input */}
+        {/* Search Input (Strictly searches Rajarata teams) */}
         <div className="leaderboard-search-wrap">
           <Search size={16} className="leaderboard-search-icon" />
           <input
             type="text"
             className="leaderboard-search-input"
-            placeholder="Search team, university, or country..."
+            placeholder="Search Rajarata teams by name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Search teams by name, university, or country"
+            aria-label="Search Rajarata University teams by name"
           />
           {searchQuery && (
             <button
@@ -261,12 +276,12 @@ export function Leaderboard() {
       <div className="leaderboard-scope-bar">
         <div className="leaderboard-scope-info">
           <span className="leaderboard-scope-tag">
-            {activeCategory === 'world' && '🌐 Global Standing (Worldwide Participating Teams)'}
-            {activeCategory === 'island' && '🇱🇰 National Standing (Sri Lanka Universities)'}
-            {activeCategory === 'university' && '🏛️ Host Institution Standing (Rajarata University of Sri Lanka)'}
+            {activeCategory === 'world' && '🌐 Official Global Standing — Rajarata University of Sri Lanka Delegations'}
+            {activeCategory === 'island' && '🇱🇰 Official Island Standing — Rajarata University Teams Among Sri Lankan Universities'}
+            {activeCategory === 'university' && '🏛️ Internal Campus Standing — Rajarata University of Sri Lanka Standings'}
           </span>
           <span className="leaderboard-scope-meta">
-            Showing {rankedTeams.length} {rankedTeams.length === 1 ? 'team' : 'teams'} in category
+            Showing {rankedTeams.length} {rankedTeams.length === 1 ? 'team' : 'teams'} (Rajarata University Only)
           </span>
         </div>
         <div className="leaderboard-source-tag">
@@ -274,7 +289,7 @@ export function Leaderboard() {
         </div>
       </div>
 
-      {/* Top 3 Podium (Shown when not filtering) */}
+      {/* Top 3 Podium (Strictly Rajarata University Teams) */}
       {showPodium && (
         <div className="leaderboard-podium">
           {/* Rank 2: Silver */}
@@ -289,7 +304,7 @@ export function Leaderboard() {
             >
               <div className="podium-card__rank-badge">
                 <Medal size={16} />
-                <span>#02 SILVER</span>
+                <span>{getPodiumBadgeText(topThree[1], 2)}</span>
               </div>
               <div className="podium-card__avatar">
                 <span>02</span>
@@ -326,7 +341,7 @@ export function Leaderboard() {
               </div>
               <div className="podium-card__rank-badge podium-card__rank-badge--gold">
                 <Trophy size={16} />
-                <span>#01 CHAMPION</span>
+                <span>{getPodiumBadgeText(topThree[0], 1)}</span>
               </div>
               <div className="podium-card__avatar podium-card__avatar--gold">
                 <span>01</span>
@@ -362,7 +377,7 @@ export function Leaderboard() {
             >
               <div className="podium-card__rank-badge">
                 <Medal size={16} />
-                <span>#03 BRONZE</span>
+                <span>{getPodiumBadgeText(topThree[2], 3)}</span>
               </div>
               <div className="podium-card__avatar">
                 <span>03</span>
@@ -386,14 +401,20 @@ export function Leaderboard() {
         </div>
       )}
 
-      {/* Main Leaderboard Table */}
+      {/* Main Leaderboard Table (Strictly Rajarata University Teams) */}
       {tableTeams.length > 0 ? (
         <div className="leaderboard-table-card">
           <div className="leaderboard-table-responsive">
             <table className="leaderboard-table">
               <thead>
                 <tr>
-                  <th className="th-rank">Rank</th>
+                  <th className="th-rank">
+                    {activeCategory === 'world'
+                      ? 'World Rank'
+                      : activeCategory === 'island'
+                      ? 'Island Rank'
+                      : 'RUSL Rank'}
+                  </th>
                   <th className="th-team">Team & Affiliation</th>
                   <th className="th-country">Region</th>
                   <th className="th-solved">Solved</th>
@@ -414,7 +435,13 @@ export function Leaderboard() {
                     onKeyDown={(e) => e.key === 'Enter' && setSelectedTeam(team)}
                   >
                     <td className="td-rank">
-                      <span className={`rank-pill ${team.displayRank <= 3 ? `rank-pill--top rank-pill--${team.displayRank}` : ''}`}>
+                      <span
+                        className={`rank-pill ${
+                          (team.universityRank ?? 99) <= 3
+                            ? `rank-pill--top rank-pill--${team.universityRank}`
+                            : ''
+                        }`}
+                      >
                         #{team.displayRank < 10 ? `0${team.displayRank}` : team.displayRank}
                       </span>
                     </td>
@@ -476,7 +503,7 @@ export function Leaderboard() {
                 >
                   CS Academy <ExternalLink size={10} />
                 </a>{' '}
-                (IEEEXtreme 20.0 Official Scoring Engine)
+                (IEEEXtreme 20.0 Official Scoring Engine) · Filtered strictly for Rajarata University of Sri Lanka.
               </span>
             </div>
             <div className="leaderboard-footer-right">
@@ -490,11 +517,9 @@ export function Leaderboard() {
           <div className="empty-search-icon">
             <Search size={28} />
           </div>
-          <h4>No matching teams found</h4>
+          <h4>No matching Rajarata teams found</h4>
           <p>
-            No teams matched "<strong>{searchQuery}</strong>" in the{' '}
-            {activeCategory === 'world' ? 'World' : activeCategory === 'island' ? 'Island' : 'University'}{' '}
-            ranking category.
+            No teams from Rajarata University matched "<strong>{searchQuery}</strong>".
           </p>
           <button
             type="button"
@@ -506,7 +531,7 @@ export function Leaderboard() {
         </div>
       )}
 
-      {/* Team Details Modal / Drawer */}
+      {/* Team Details Modal */}
       {selectedTeam && (
         <div
           className="leaderboard-modal-overlay"
@@ -530,13 +555,7 @@ export function Leaderboard() {
 
             <div className="modal-header">
               <div className="modal-topline">
-                <span className="modal-demo-tag">
-                  {selectedTeam.isRajarata
-                    ? 'RAJARATA TEAM PROFILE'
-                    : selectedTeam.isSriLanka
-                    ? 'SRI LANKA TEAM PROFILE'
-                    : 'GLOBAL TEAM PROFILE'}
-                </span>
+                <span className="modal-demo-tag">RAJARATA UNIVERSITY TEAM</span>
                 <span className="modal-country-tag">
                   <MapPin size={12} /> {selectedTeam.country} ({selectedTeam.countryCode})
                 </span>
@@ -547,16 +566,16 @@ export function Leaderboard() {
               </p>
             </div>
 
-            {/* Standings Grid */}
+            {/* Standings Grid: Preserved Original Official Ranks */}
             <div className="modal-stats-grid">
               <div className="modal-stat-card">
-                <span className="stat-label">World Rank</span>
+                <span className="stat-label">Official World Rank</span>
                 <span className="stat-value stat-value--cyan">
                   {selectedTeam.worldRank ? `#${selectedTeam.worldRank}` : '—'}
                 </span>
               </div>
               <div className="modal-stat-card">
-                <span className="stat-label">Island Rank</span>
+                <span className="stat-label">Official Island Rank</span>
                 <span className="stat-value">
                   {selectedTeam.islandRank ? `#${selectedTeam.islandRank}` : 'N/A'}
                 </span>
@@ -617,7 +636,7 @@ export function Leaderboard() {
 
             <div className="modal-footer">
               <span className="modal-footer-note">
-                Official CS Academy Telemetry · Contest ID #133706
+                Official CS Academy Telemetry · Contest ID #133706 · Rajarata Delegation
               </span>
               <button
                 type="button"

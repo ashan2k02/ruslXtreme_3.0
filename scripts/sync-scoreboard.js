@@ -8,29 +8,10 @@ const OUTPUT_FILE = path.resolve(__dirname, '../public/data/scoreboard.json')
 const CONTEST_ID = 133706
 const URL = `https://csacademy.com/contest/scoreboard_state/?contestId=${CONTEST_ID}`
 
-const COUNTRIES = {
-  211: { name: 'Sri Lanka', code: 'LK' },
-  46: { name: 'China', code: 'CN' },
-  103: { name: 'Indonesia', code: 'ID' },
-  234: { name: 'United States', code: 'US' },
-  102: { name: 'India', code: 'IN' },
-  18: { name: 'Bangladesh', code: 'BD' },
-  233: { name: 'United Kingdom', code: 'GB' },
-  38: { name: 'Canada', code: 'CA' },
-  10: { name: 'Australia', code: 'AU' },
-  34: { name: 'Brazil', code: 'BR' },
-  72: { name: 'France', code: 'FR' },
-  78: { name: 'Germany', code: 'DE' },
-  110: { name: 'Japan', code: 'JP' },
-  198: { name: 'Singapore', code: 'SG' },
-  113: { name: 'Jordan', code: 'JO' },
-  121: { name: 'Lebanon', code: 'LB' },
-  162: { name: 'Pakistan', code: 'PK' },
-  170: { name: 'Philippines', code: 'PH' },
-  219: { name: 'Tunisia', code: 'TN' },
-  220: { name: 'Turkey', code: 'TR' },
-  63: { name: 'Egypt', code: 'EG' },
-  84: { name: 'Greece', code: 'GR' },
+export function isRajarataUniversity(uni) {
+  if (!uni || typeof uni !== 'string') return false
+  const clean = uni.trim().toLowerCase().replace(/\s+/g, ' ')
+  return clean === 'rajarata university of sri lanka' || clean === 'rajarata university'
 }
 
 function formatMinutes(minutes) {
@@ -71,7 +52,8 @@ async function syncScoreboard() {
     }
   }
 
-  const teams = []
+  // 1. Process all official participants to determine global World Rank and national Island Rank
+  const allOfficialTeams = []
 
   for (const cu of contestUsers) {
     const teamType = cu.ieeeTeamType ?? 1
@@ -80,13 +62,9 @@ async function syncScoreboard() {
     const pu = puMap.get(cu.userId) || {}
     const teamName = pu.name || pu.username || `Team ${cu.userId}`
     const countryId = pu.countryId != null ? Number(pu.countryId) : null
-    const countryMeta = countryId != null ? COUNTRIES[countryId] : null
-    const country = countryMeta ? countryMeta.name : 'International'
-    const countryCode = countryMeta ? countryMeta.code : 'GL'
-
     const university = (cu.university || '').trim()
-    const isSriLanka = countryId === 211 || country.toLowerCase() === 'sri lanka'
-    const isRajarata = university.toLowerCase() === 'rajarata university of sri lanka'
+    const isSriLanka = countryId === 211 || (pu.country && pu.country.toLowerCase() === 'sri lanka')
+    const isRajarata = isRajarataUniversity(university)
 
     const solvedProblems = []
     let solvedCount = 0
@@ -126,79 +104,71 @@ async function syncScoreboard() {
     const totalScore = typeof cu.totalScore === 'number' ? Math.round(cu.totalScore * 100) / 100 : 0
     const penalty = typeof cu.penalty === 'number' ? Math.round(cu.penalty * 100) / 100 : 0
 
-    teams.push({
+    allOfficialTeams.push({
       teamId: `csa-${cu.id || cu.userId}`,
       teamName,
       score: totalScore,
       penalty,
       solved: solvedCount,
       partiallySolved: partialCount,
-      country,
-      countryCode,
-      university: university || 'Independent / Not specified',
+      country: 'Sri Lanka',
+      countryCode: 'LK',
+      university: isRajarata ? 'Rajarata University of Sri Lanka' : university,
       isSriLanka,
       isRajarata,
       worldRank: 0,
+      islandRank: undefined,
+      universityRank: undefined,
       solvedProblems,
     })
   }
 
-  // Official Sort: score DESC, then penalty ASC
-  teams.sort((a, b) => {
+  // Official CS Academy sort: totalScore DESC, then penalty ASC
+  allOfficialTeams.sort((a, b) => {
     const diff = b.score - a.score
     if (Math.abs(diff) > 1e-4) return diff
     return a.penalty - b.penalty
   })
 
-  // Assign World, Island, and University ranks
-  let slRank = 1
-  let ruslRank = 1
-
-  teams.forEach((team, index) => {
+  // Assign original official World Rank and Island Rank across all participants
+  let slRankCounter = 1
+  allOfficialTeams.forEach((team, index) => {
     team.worldRank = index + 1
     if (team.isSriLanka) {
-      team.islandRank = slRank++
-    }
-    if (team.isRajarata) {
-      team.universityRank = ruslRank++
+      team.islandRank = slRankCounter++
     }
   })
 
-  // Filter snapshot: Top 100 World, Top 100 Sri Lanka, and ALL Rajarata teams
-  const selectedMap = new Map()
+  // 2. STRICT FILTER: Keep ONLY Rajarata University of Sri Lanka teams
+  const ruslTeams = allOfficialTeams.filter((team) => team.isRajarata)
 
-  teams.slice(0, 100).forEach(t => selectedMap.set(t.teamId, t))
-  teams.filter(t => t.isSriLanka).slice(0, 100).forEach(t => selectedMap.set(t.teamId, t))
-  teams.filter(t => t.isRajarata).forEach(t => selectedMap.set(t.teamId, t))
-
-  const snapshotTeams = Array.from(selectedMap.values())
-  // Keep original sorted order
-  snapshotTeams.sort((a, b) => a.worldRank - b.worldRank)
+  // Assign internal University Rank (1 to N) among Rajarata University teams
+  ruslTeams.forEach((team, index) => {
+    team.universityRank = index + 1
+  })
 
   const payload = {
     contestId: CONTEST_ID,
-    contestName: 'IEEEXtreme 20.0',
+    contestName: 'IEEEXtreme 20.0 — Rajarata University Delegations',
     lastUpdated: new Date().toISOString(),
     numRegistered: contestUsers.length,
+    numRajarataTeams: ruslTeams.length,
     isLive: true,
     isRealData: true,
     source: 'https://csacademy.com/ieeextreme20/scoreboard/',
-    teams: snapshotTeams,
+    teams: ruslTeams,
   }
 
   fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true })
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(payload, null, 2), 'utf8')
 
-  const ruslTeams = snapshotTeams.filter(t => t.isRajarata)
-  const slTeams = snapshotTeams.filter(t => t.isSriLanka)
-
   console.log(`\nSuccessfully updated snapshot at: ${OUTPUT_FILE}`)
-  console.log(`- Total Snapshot Teams: ${snapshotTeams.length}`)
-  console.log(`- Sri Lanka Teams: ${slTeams.length}`)
-  console.log(`- Rajarata University Teams: ${ruslTeams.length}`)
-  if (ruslTeams.length > 0) {
-    console.log(`- #1 Rajarata Team: ${ruslTeams[0].teamName} (Score: ${ruslTeams[0].score}, World #${ruslTeams[0].worldRank}, Island #${ruslTeams[0].islandRank})`)
-  }
+  console.log(`- Strictly Rajarata University Teams ONLY: ${ruslTeams.length}`)
+  ruslTeams.forEach((t) => {
+    console.log(
+      `  #${t.universityRank.toString().padStart(2, '0')} RUSL | World #${t.worldRank.toString().padStart(4, ' ')} | Island #${t.islandRank.toString().padStart(3, ' ')} | ${t.teamName} (${t.score} pts)`
+    )
+  })
 }
 
 syncScoreboard().catch((err) => {
