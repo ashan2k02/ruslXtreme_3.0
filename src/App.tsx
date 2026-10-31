@@ -6,6 +6,7 @@ import {
   ChevronRight,
   CircleDot,
   Code2,
+  Globe,
   Image as ImageIcon,
   Layers3,
   Mail,
@@ -24,6 +25,22 @@ import { committeeLeadership, committeeTeams } from './data/committee'
 import { archiveEvents, archiveItems } from './data/archive'
 import { competitionInfo, journeyStages } from './data/competition'
 import { faqItems, sponsorSlots } from './data/community'
+
+function LinkedInIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37h2.79V10.9H6.46M7.86 6.3a1.63 1.63 0 1 0 0 3.26 1.63 1.63 0 0 0 0-3.26z" />
+    </svg>
+  )
+}
+
+function GitHubIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+    </svg>
+  )
+}
 
 function StatusPill({ children, tone = 'placeholder' }: { children: ReactNode; tone?: 'placeholder' | 'live' }) {
   return <span className={`status-pill status-pill--${tone}`}><span />{children}</span>
@@ -320,14 +337,93 @@ function App() {
 
         <section className="section section--committee" id="committee">
           <div className="shell-width">
-            <div className="section-topline"><div className="section-index">05 <span>/</span> CREW</div><StatusPill>Demo profiles — replace before launch</StatusPill></div>
-            <div className="committee-heading"><SectionHeading eyebrow="Organizing committee" title="The crew behind the signal." copy="A premium directory for the people who shape the mission. The profiles below are clearly marked demo content and are ready to be replaced with verified committee information." /><Users className="committee-heading__icon" size={46} strokeWidth={1} /></div>
-            <div className="committee-demo-note"><span className="signal-dot" /> DEMO PROFILES — REPLACE BEFORE LAUNCH <span>Names, portraits, roles, and bios are illustrative only.</span></div>
+            <div className="section-topline"><div className="section-index">05 <span>/</span> CREW</div><StatusPill tone="live">Official committee verified</StatusPill></div>
+            <div className="committee-heading"><SectionHeading eyebrow="Organizing committee" title="The crew behind the signal." copy="The official organizing committee powering RUSLXTREME 3.0. Dedicated leads, coordinators, and contributors across all operational tracks." /><Users className="committee-heading__icon" size={46} strokeWidth={1} /></div>
+            <div className="committee-demo-note committee-verified-note"><span className="signal-dot" /> OFFICIAL COMMITTEE DIRECTORY <span>Verified roles and members from official committee submissions.</span></div>
             <div className="committee-leadership">
-              {committeeLeadership.map((member) => <article className="leader-card" key={member.id}><div className="leader-card__image-wrap"><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} loading="lazy" decoding="async" /><span className="leader-card__scan">LEADERSHIP / DEMO</span><span className="leader-card__index">0{committeeLeadership.indexOf(member) + 1}</span></div><div className="leader-card__body"><div className="member-card__role">{member.title}</div><h3>{member.name}</h3><p>{member.bio}</p><span className="member-card__status"><span />Demo profile</span></div></article>)}
+              {committeeLeadership.map((member) => (
+                <article className="leader-card" key={member.id}>
+                  <div className="leader-card__image-wrap">
+                    <img src={member.portrait} alt={`${member.name}, ${member.title} portrait`} loading="lazy" decoding="async" />
+                    <span className="leader-card__scan">LEADERSHIP / VERIFIED</span>
+                    <span className="leader-card__index">0{committeeLeadership.indexOf(member) + 1}</span>
+                  </div>
+                  <div className="leader-card__body">
+                    <div className="member-card__role">{member.title}</div>
+                    <h3>{member.name}</h3>
+                    <p>{member.bio}</p>
+                    <div className="member-card__footer">
+                      <span className="member-card__status member-card__status--verified"><span />Verified leader</span>
+                      {(member.linkedin || member.github || member.portfolio) && (
+                        <div className="member-card__socials">
+                          {member.linkedin && (
+                            <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="member-card__social-link" aria-label={`LinkedIn profile of ${member.name}`}>
+                              <LinkedInIcon size={14} />
+                            </a>
+                          )}
+                          {member.github && (
+                            <a href={member.github} target="_blank" rel="noopener noreferrer" className="member-card__social-link" aria-label={`GitHub profile of ${member.name}`}>
+                              <GitHubIcon size={14} />
+                            </a>
+                          )}
+                          {member.portfolio && (
+                            <a href={member.portfolio} target="_blank" rel="noopener noreferrer" className="member-card__social-link" aria-label={`Portfolio website of ${member.name}`}>
+                              <Globe size={14} />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
             </div>
             <div className="committee-teams">
-              {committeeTeams.map((team, teamIndex) => <section className="committee-team" key={team.id} aria-labelledby={`team-${team.id}`}><div className="committee-team__heading"><div><span className="committee-team__index">0{teamIndex + 1}</span><h3 id={`team-${team.id}`}>{team.name}</h3></div><p>{team.description}</p></div><div className="committee-members">{team.members.map((member) => <article className="directory-card" key={member.id}><img src={member.portrait} alt={`${member.name}, demo ${member.title} portrait`} loading="lazy" decoding="async" /><div className="directory-card__body"><span className="member-card__role">{member.title}</span><h4>{member.name}</h4><span className="directory-card__team">{member.team}</span><span className="member-card__status"><span />Demo profile</span></div></article>)}</div></section>)}
+              {committeeTeams.map((team, teamIndex) => (
+                <section className="committee-team" key={team.id} aria-labelledby={`team-${team.id}`}>
+                  <div className="committee-team__heading">
+                    <div>
+                      <span className="committee-team__index">0{teamIndex + 1}</span>
+                      <h3 id={`team-${team.id}`}>{team.name}</h3>
+                    </div>
+                    <p>{team.description}</p>
+                  </div>
+                  <div className="committee-members">
+                    {team.members.map((member) => (
+                      <article className="directory-card" key={member.id}>
+                        <img src={member.portrait} alt={`${member.name}, ${member.title} portrait`} loading="lazy" decoding="async" />
+                        <div className="directory-card__body">
+                          <span className="member-card__role">{member.title}</span>
+                          <h4>{member.name}</h4>
+                          <span className="directory-card__team">{member.team}</span>
+                          <div className="member-card__footer">
+                            <span className="member-card__status member-card__status--verified"><span />Verified member</span>
+                            {(member.linkedin || member.github || member.portfolio) && (
+                              <div className="member-card__socials">
+                                {member.linkedin && (
+                                  <a href={member.linkedin} target="_blank" rel="noopener noreferrer" className="member-card__social-link" aria-label={`LinkedIn profile of ${member.name}`}>
+                                    <LinkedInIcon size={13} />
+                                  </a>
+                                )}
+                                {member.github && (
+                                  <a href={member.github} target="_blank" rel="noopener noreferrer" className="member-card__social-link" aria-label={`GitHub profile of ${member.name}`}>
+                                    <GitHubIcon size={13} />
+                                  </a>
+                                )}
+                                {member.portfolio && (
+                                  <a href={member.portfolio} target="_blank" rel="noopener noreferrer" className="member-card__social-link" aria-label={`Portfolio website of ${member.name}`}>
+                                    <Globe size={13} />
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
             </div>
           </div>
         </section>

@@ -422,6 +422,8 @@ button { border: 0; font: inherit; cursor: pointer; }
 .committee-heading__icon { color: #4d6b83; opacity: .7; }
 .committee-demo-note { display: flex; align-items: center; gap: 12px; margin: -30px 0 34px; padding: 13px 16px; border: 1px solid rgba(34, 211, 238, .2); border-radius: var(--radius-card); background: rgba(9, 25, 45, .64); color: var(--cyan); font: 500 10px var(--mono); letter-spacing: .08em; }
 .committee-demo-note span:last-child { margin-left: auto; color: #94a3b8; font-weight: 400; letter-spacing: .02em; text-transform: none; }
+.committee-verified-note { border-color: rgba(52, 211, 153, .3); background: rgba(6, 35, 30, .45); color: #6ee7b7; }
+.signal-dot--live { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, .15), 0 0 8px rgba(16, 185, 129, .6); }
 .committee-leadership { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-bottom: 84px; }
 .leader-card { display: grid; grid-template-columns: .93fr 1.07fr; min-height: 320px; overflow: hidden; border: 1px solid rgba(104, 205, 241, .22); border-radius: 10px; background: linear-gradient(135deg, rgba(18, 47, 76, .72), rgba(7, 18, 34, .72)); box-shadow: 0 25px 70px rgba(2, 6, 23, .28); transition: transform .3s ease, border-color .3s ease; }
 .leader-card:nth-child(2) { border-color: rgba(145, 111, 255, .28); background: linear-gradient(135deg, rgba(43, 27, 78, .72), rgba(7, 18, 34, .72)); }
@@ -440,6 +442,13 @@ button { border: 0; font: inherit; cursor: pointer; }
 .member-card__role { color: #6d9eb4; font: 400 10px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .member-card__status { display: flex; align-items: center; gap: 8px; color: #687d93; font: 10px var(--mono); }
 .member-card__status span { width: 5px; height: 5px; border-radius: 50%; background: #687d93; }
+.member-card__status--verified { color: #6ee7b7; }
+.member-card__status--verified span { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, .6); }
+.member-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 8px; flex-wrap: wrap; }
+.member-card__socials { display: flex; align-items: center; gap: 6px; }
+.member-card__social-link { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(148, 163, 184, .2); background: rgba(15, 23, 42, .6); color: #94a3b8; transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }
+.member-card__social-link:hover { color: var(--cyan); border-color: rgba(34, 211, 238, .5); background: rgba(34, 211, 238, .12); transform: translateY(-1px); }
+.member-card__social-link:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
 
 .committee-teams { display: grid; gap: 54px; }
 .committee-team { padding-top: 26px; border-top: 1px solid rgba(157, 189, 222, .16); }
@@ -450,12 +459,12 @@ button { border: 0; font: inherit; cursor: pointer; }
 .committee-team__heading p { max-width: 440px; margin: 0; color: #94a3b8; font-size: 13px; line-height: 1.65; }
 
 .committee-members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.directory-card { display: grid; grid-template-columns: 118px 1fr; min-height: 150px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-card); background: rgba(12, 28, 47, .6); transition: transform .3s ease, border-color .3s ease, background .3s ease; }
+.directory-card { display: grid; grid-template-columns: 118px 1fr; min-height: 160px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-card); background: rgba(12, 28, 47, .6); transition: transform .3s ease, border-color .3s ease, background .3s ease; }
 .directory-card:hover { transform: translateY(-3px); border-color: rgba(34, 211, 238, .42); background: rgba(17, 41, 66, .76); }
-.directory-card img { width: 118px; height: 100%; min-height: 150px; object-fit: cover; border-right: 1px solid rgba(157, 189, 222, .12); }
-.directory-card__body { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: 20px; }
-.directory-card__body h4 { margin: 8px 0 6px; color: #dbe8f5; font: 600 20px/1.1 var(--display); letter-spacing: -.04em; }
-.directory-card__team { margin-bottom: 16px; color: #94a3b8; font: 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.directory-card img { width: 118px; height: 100%; min-height: 160px; object-fit: cover; border-right: 1px solid rgba(157, 189, 222, .12); }
+.directory-card__body { display: flex; min-width: 0; flex-direction: column; justify-content: space-between; padding: 18px 20px; }
+.directory-card__body h4 { margin: 6px 0 4px; color: #dbe8f5; font: 600 clamp(16px, 1.4vw, 19px)/1.2 var(--display); letter-spacing: -.03em; word-break: break-word; }
+.directory-card__team { margin-bottom: 8px; color: #94a3b8; font: 9px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
 .directory-card .member-card__role { color: #77b8ca; }
 .directory-card .member-card__status { color: #657c93; }
 
