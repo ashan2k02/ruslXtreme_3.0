@@ -313,17 +313,6 @@ export class ScoreboardSyncEngine {
 
     const contestUsers = raw.state.contestuser
     const publicUsers = Array.isArray(raw.state.publicuser) ? raw.state.publicuser : []
-    const contestInfo = raw.state.contest && typeof raw.state.contest === 'object' ? raw.state.contest : {}
-    const startTime = typeof contestInfo.startTime === 'number' ? contestInfo.startTime : 1793404800.0
-
-    // Extract dynamic task points if present in state
-    if (raw.state.ContestTask && Array.isArray(raw.state.ContestTask)) {
-      for (const ct of raw.state.ContestTask) {
-        if (ct.id && typeof ct.pointsWorth === 'number' && ct.pointsWorth > 0) {
-          this.taskWeights[String(ct.id)] = ct.pointsWorth
-        }
-      }
-    }
 
     const puMap = new Map()
     for (const pu of publicUsers) {
@@ -332,111 +321,86 @@ export class ScoreboardSyncEngine {
       }
     }
 
-    const allOfficialTeams = []
+    // 1. Official competing teams only (ieeeTeamType <= 2, exclude proctors ieeeTeamType: 3 and unofficial)
+    const officialTeams = contestUsers.filter(
+      (cu) => (cu.ieeeTeamType == null || cu.ieeeTeamType <= 2) && !cu.unofficial
+    )
 
-    for (const cu of contestUsers) {
-      const teamType = cu.ieeeTeamType ?? 1
-      // IEEE official participant filter (1 = official, 2 = late official)
-      if (teamType !== 1 && teamType !== 2) {
-        continue
-      }
-
-      const pu = puMap.get(cu.userId) || {}
-      const teamName = pu.name || pu.username || `Team ${cu.userId}`
-      const countryId = pu.countryId != null ? Number(pu.countryId) : null
-      const university = (cu.university || '').trim()
-      const isSriLanka = countryId === 211 || (pu.country && String(pu.country).toLowerCase() === 'sri lanka')
-      const isRajarata = isRajarataUniversity(university)
-
-      const solvedProblems = []
-      let solvedCount = 0
-      let partialCount = 0
-      let recalculatedScore = 0
-
-      if (cu.scores && typeof cu.scores === 'object') {
-        for (const [taskId, tScoreRaw] of Object.entries(cu.scores)) {
-          const tScore = tScoreRaw || {}
-          const scoreFrac = typeof tScore.score === 'number' ? tScore.score : 0
-          const attempts = typeof tScore.penalty === 'number' ? Math.max(1, tScore.penalty) : 1
-          const scoreTimeSec = typeof tScore.scoreTime === 'number' ? tScore.scoreTime : 0
-
-          let relMinutes = 0
-          if (scoreTimeSec > 0 && startTime > 0 && scoreTimeSec >= startTime) {
-            relMinutes = (scoreTimeSec - startTime) / 60
-          } else if (scoreTimeSec > 0 && scoreTimeSec < 2000) {
-            relMinutes = scoreTimeSec
-          }
-
-          const weight = this.taskWeights[taskId] || 100.0
-          const points = Math.round(scoreFrac * weight * 10) / 10
-          recalculatedScore += scoreFrac * weight
-
-          if (scoreFrac >= 0.999) {
-            solvedCount++
-          } else if (scoreFrac > 0) {
-            partialCount++
-          }
-
-          solvedProblems.push({
-            id: `Task-${taskId}`,
-            name: KNOWN_TASK_NAMES[taskId] || `Challenge ${taskId}`,
-            points,
-            score: scoreFrac,
-            time: formatMinutes(relMinutes),
-            attempts,
-          })
-        }
-      }
-
-      // Exact 2-decimal rounded official display score
-      const finalScore = Math.round(recalculatedScore * 100) / 100
-      // Official CS Academy integer penalty display
-      const finalPenalty = Math.round(typeof cu.penalty === 'number' ? cu.penalty : 0)
-
-      allOfficialTeams.push({
-        teamId: `csa-${cu.id || cu.userId}`,
-        teamName,
-        score: finalScore,
-        penalty: finalPenalty,
-        solved: solvedCount,
-        partiallySolved: partialCount,
-        country: isSriLanka ? 'Sri Lanka' : 'International',
-        countryCode: isSriLanka ? 'LK' : 'GL',
-        university: isRajarata ? 'Rajarata University of Sri Lanka' : university,
-        isSriLanka,
-        isRajarata,
-        worldRank: 0,
-        solvedProblems,
-      })
+    // 2. Official CS Academy comparator directly from bundle.js
+    function sg(e, t) {
+      const sDiff = (t.totalScore || 0) - (e.totalScore || 0)
+      if (Math.abs(sDiff) > 1e-9) return sDiff
+      return (e.penalty || 1e12) - (t.penalty || 1e12)
     }
 
-    // Official CS Academy sorting comparator: score DESC, then penalty ASC
-    allOfficialTeams.sort((a, b) => {
-      const diff = b.score - a.score
-      if (Math.abs(diff) > 1e-4) return diff
-      return a.penalty - b.penalty
-    })
+    function haveSubmitted(u) {
+      return (u.numSubmissions || 0) > 0
+    }
 
-    // Assign official World Rank and Island Rank across ALL official participants
-    let slRankCounter = 1
-    allOfficialTeams.forEach((team, index) => {
-      team.worldRank = index + 1
-      if (team.isSriLanka) {
-        team.islandRank = slRankCounter++
+    function sf(e, t) {
+      if (haveSubmitted(e) !== haveSubmitted(t)) {
+        return (t.numSubmissions || 0) - (e.numSubmissions || 0)
       }
+      return sg(e, t)
+    }
+
+    // Sort all official teams worldwide according to official ranking order
+    officialTeams.sort(sf)
+
+    // 3. Assign official World Rank across all competing teams
+    for (let t = 0; t < officialTeams.length; t += 1) {
+      if (t > 0 && 0 === sf(officialTeams[t], officialTeams[t - 1])) {
+        officialTeams[t].worldRank = officialTeams[t - 1].worldRank
+      } else {
+        officialTeams[t].worldRank = t + 1
+      }
+    }
+
+    // 4. Identify all Sri Lankan teams across the complete official global dataset
+    const sriLankaTeams = officialTeams.filter((cu) => {
+      const pu = puMap.get(cu.userId)
+      return pu && (pu.countryId === 211 || (pu.country && String(pu.country).toLowerCase() === 'sri lanka'))
     })
 
-    // STRICT REQUIREMENT: Filter ONLY Rajarata University of Sri Lanka teams
-    const ruslTeams = allOfficialTeams.filter((t) => t.isRajarata)
+    // Assign official Sri Lanka Rank among all Sri Lankan teams
+    for (let t = 0; t < sriLankaTeams.length; t += 1) {
+      if (t > 0 && 0 === sf(sriLankaTeams[t], sriLankaTeams[t - 1])) {
+        sriLankaTeams[t].islandRank = sriLankaTeams[t - 1].islandRank
+      } else {
+        sriLankaTeams[t].islandRank = t + 1
+      }
+    }
 
-    // Assign Rajarata internal University Rank (1 to N)
-    ruslTeams.forEach((team, index) => {
-      team.universityRank = index + 1
+    // 5. Filter strictly Rajarata University of Sri Lanka teams
+    const ruslRaw = officialTeams.filter((cu) => isRajarataUniversity(cu.university))
+
+    // Assign Rajarata internal University Rank (1 to N) based on official global leaderboard ordering
+    ruslRaw.forEach((cu, idx) => {
+      cu.universityRank = idx + 1
+    })
+
+    // Format clean, rank-only team objects (NO score, NO penalty, NO solved problems)
+    const ruslTeams = ruslRaw.map((cu) => {
+      const pu = puMap.get(cu.userId) || {}
+      const teamName = pu.name || pu.username || `Team ${cu.userId}`
+      return {
+        teamId: `csa-${cu.id || cu.userId}`,
+        teamName,
+        country: 'Sri Lanka',
+        countryCode: 'LK',
+        university: 'Rajarata University of Sri Lanka',
+        isSriLanka: true,
+        isRajarata: true,
+        worldRank: cu.worldRank ?? null,
+        islandRank: cu.islandRank ?? null,
+        universityRank: cu.universityRank ?? null,
+      }
     })
 
     return {
       totalRegistered: contestUsers.length,
-      allOfficialTeamsCount: allOfficialTeams.length,
+      allOfficialTeamsCount: officialTeams.length,
+      sriLankaTeamsCount: sriLankaTeams.length,
       ruslTeams,
     }
   }
@@ -457,7 +421,7 @@ export class ScoreboardSyncEngine {
         }
 
         const raw = await this.fetchScoreboardData()
-        const { totalRegistered, allOfficialTeamsCount, ruslTeams } = this.processRawState(raw)
+        const { totalRegistered, allOfficialTeamsCount, sriLankaTeamsCount, ruslTeams } = this.processRawState(raw)
 
         this.syncCount++
         this.consecutiveFailures = 0
@@ -469,14 +433,15 @@ export class ScoreboardSyncEngine {
           lastUpdated: now.toISOString(),
           lastUpdatedFormatted: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
           sourceName: this.isAuthenticated
-            ? 'CS Academy Authenticated Live Engine'
-            : 'CS Academy Official Scoring Engine',
+            ? 'CS Academy Official Rankings (Authenticated)'
+            : 'CS Academy Official Rankings',
           authenticated: this.isAuthenticated,
           syncCount: this.syncCount,
           upstreamIntervalMs: this.upstreamIntervalMs,
           frontendIntervalMs: this.frontendIntervalMs,
           numRegistered: totalRegistered,
           numOfficialTeams: allOfficialTeamsCount,
+          numSriLankaTeams: sriLankaTeamsCount,
           numRajarataTeams: ruslTeams.length,
           teams: ruslTeams,
           error: null,
@@ -488,9 +453,11 @@ export class ScoreboardSyncEngine {
         try {
           const payload = {
             contestId: CONTEST_ID,
-            contestName: 'IEEEXtreme 20.0 — Rajarata University Delegations',
+            contestName: 'IEEEXtreme 20.0 — Official Rajarata University Rankings',
             lastUpdated: now.toISOString(),
             numRegistered: totalRegistered,
+            numOfficialTeams: allOfficialTeamsCount,
+            numSriLankaTeams: sriLankaTeamsCount,
             numRajarataTeams: ruslTeams.length,
             isLive: true,
             isRealData: true,

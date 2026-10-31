@@ -436,9 +436,9 @@ export function getLeaderboardForCategory(
   return ruslTeams.map((team) => {
     let displayRank = team.universityRank ?? 1
     if (category === 'world') {
-      displayRank = team.worldRank
+      displayRank = team.worldRank ?? 1
     } else if (category === 'island') {
-      displayRank = team.islandRank ?? team.worldRank
+      displayRank = team.islandRank ?? team.worldRank ?? 1
     } else {
       displayRank = team.universityRank ?? 1
     }

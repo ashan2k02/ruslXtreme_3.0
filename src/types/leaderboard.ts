@@ -5,29 +5,30 @@ export type ConnectionStatus = 'connected' | 'syncing' | 'cached' | 'error' | 'd
 export interface SolvedProblem {
   id: string
   name: string
-  points: number
+  points?: number
   score?: number
-  time: string
-  attempts: number
+  time?: string
+  attempts?: number
 }
 
 export interface LeaderboardTeam {
   teamId: string
   teamName: string
-  score: number
-  penalty: number // in minutes
-  solved: number
-  partiallySolved?: number
   country: string
   countryCode: string
   university: string
   isSriLanka: boolean
   isRajarata: boolean
-  worldRank: number
-  islandRank?: number
-  universityRank?: number
-  solvedProblems: SolvedProblem[]
-  displayRank?: number
+  worldRank: number | null
+  islandRank: number | null
+  universityRank: number | null
+  displayRank?: number | null
+  // Optional legacy fields for backward compatibility
+  score?: number
+  penalty?: number
+  solved?: number
+  partiallySolved?: number
+  solvedProblems?: SolvedProblem[]
 }
 
 export interface ScoreboardState {
@@ -37,6 +38,8 @@ export interface ScoreboardState {
   sourceName: string
   authenticated?: boolean
   totalRegistered?: number
+  numOfficialTeams?: number
+  numSriLankaTeams?: number
   numRajarataTeams?: number
   teams: LeaderboardTeam[]
   error?: string | null
@@ -47,6 +50,8 @@ export interface ScoreboardPayload {
   contestName: string
   lastUpdated: string
   numRegistered?: number
+  numOfficialTeams?: number
+  numSriLankaTeams?: number
   numRajarataTeams?: number
   isLive: boolean
   isRealData: boolean

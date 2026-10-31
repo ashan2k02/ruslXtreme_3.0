@@ -499,6 +499,9 @@ button { border: 0; font: inherit; cursor: pointer; }
 .podium-card__score-box { width: 100%; padding: 12px 14px; border-radius: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); margin-top: auto; display: flex; flex-direction: column; gap: 3px; }
 .podium-score-val { font: 700 18px var(--display); letter-spacing: -0.02em; }
 .podium-score-meta { font: 400 11px var(--mono); color: #94a3b8; }
+.podium-card__rankings-box { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 12px 0 8px; flex-wrap: wrap; }
+.podium-rank-tag { font: 600 10px var(--mono); padding: 4px 8px; border-radius: 5px; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.2); color: #e2e8f0; letter-spacing: 0.04em; }
+.podium-rank-tag--active { background: rgba(34, 211, 238, 0.16); border-color: rgba(34, 211, 238, 0.45); color: #38bdf8; }
 .podium-card__view-btn { display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; font: 500 11px var(--mono); color: var(--cyan); transition: transform 0.2s ease; }
 .podium-card:hover .podium-card__view-btn { transform: translateX(2px); }
 
@@ -507,13 +510,15 @@ button { border: 0; font: inherit; cursor: pointer; }
 .leaderboard-table-responsive { width: 100%; overflow-x: auto; }
 .leaderboard-table { width: 100%; border-collapse: collapse; text-align: left; }
 .leaderboard-table th { padding: 16px 20px; font: 600 10px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; border-bottom: 1px solid rgba(148, 163, 184, 0.16); background: rgba(8, 18, 32, 0.75); }
-.th-rank { width: 80px; }
+.th-rank { width: 90px; }
 .th-team { min-width: 240px; }
 .th-country { width: 150px; }
-.th-solved { width: 120px; text-align: center; }
-.th-penalty { width: 110px; text-align: right; }
-.th-score { width: 130px; text-align: right; }
+.th-ranks { width: 280px; text-align: right; }
 .th-action { width: 60px; text-align: center; }
+.td-ranks { text-align: right; }
+.table-rank-tags { display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; flex-wrap: wrap; }
+.table-rank-tag { font: 500 10px var(--mono); padding: 3px 8px; border-radius: 4px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(148, 163, 184, 0.18); color: #94a3b8; white-space: nowrap; }
+.table-rank-tag--active { border-color: rgba(34, 211, 238, 0.5); color: #38bdf8; background: rgba(34, 211, 238, 0.12); font-weight: 600; }
 
 .leaderboard-row { border-bottom: 1px solid rgba(148, 163, 184, 0.1); cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; }
 .leaderboard-row:hover { background: rgba(34, 211, 238, 0.06); }

@@ -1,8 +1,8 @@
-import { ScoreboardSyncEngine, isRajarataUniversity, DEFAULT_TASK_WEIGHTS } from './sync-engine.js'
+import { ScoreboardSyncEngine, isRajarataUniversity } from './sync-engine.js'
 
 async function runTestSuite() {
   console.log('=================================================================')
-  console.log('  RUSLXTREME 3.0 — Comprehensive Leaderboard Integration Tests   ')
+  console.log('  RUSLXTREME 3.0 — Official Rankings Integration Tests           ')
   console.log('=================================================================\n')
 
   let passed = 0
@@ -33,67 +33,58 @@ async function runTestSuite() {
   assert(!isRajarataUniversity(null), 'Rejects null')
   assert(!isRajarataUniversity(undefined), 'Rejects undefined')
 
-  // 2. Test Score Calculation Accuracy
-  console.log('\n--- TEST 2: Score Calculation & Target Match ---')
-  const verifiedTargets = [
-    { name: 'AlgoBlaze', expectedScore: 382.12, expectedPenalty: 493, scores: { '52351': 1, '52352': 1, '52354': 1, '52355': 1, '52436': 0.5055664506282052 } },
-    { name: 'AthiMataHathi', expectedScore: 376.29, expectedPenalty: 563, scores: { '52351': 1, '52352': 1, '52354': 1, '52355': 1, '52436': 0.43918798989743585 } },
-    { name: 'Algorynth', expectedScore: 298.82, expectedPenalty: 619, scores: { '52351': 1, '52354': 1, '52355': 1, '52436': 0.601344 } },
-    { name: 'ByteBots', expectedScore: 293.56, expectedPenalty: 516, scores: { '52351': 1, '52354': 1, '52355': 1, '52436': 0.54145 } },
-    { name: '404syndicate', expectedScore: 288.08, expectedPenalty: 400, scores: { '52351': 1, '52354': 1, '52355': 1, '52436': 0.47904822065384617 } },
-    { name: 'TheVanguard', expectedScore: 287.42, expectedPenalty: 179, scores: { '52351': 1, '52354': 1, '52355': 1, '52436': 0.47155955164102564 } },
-  ]
-
-  for (const t of verifiedTargets) {
-    let score = 0
-    for (const [tid, frac] of Object.entries(t.scores)) {
-      score += frac * (DEFAULT_TASK_WEIGHTS[tid] || 0)
-    }
-    const finalScore = Math.round(score * 100) / 100
-    assert(
-      finalScore === t.expectedScore,
-      `Team ${t.name}: Score ${finalScore} matches expected ${t.expectedScore}`
-    )
-  }
-
-  // 3. Test Centralized Sync Engine Live Fetch & Ranking
-  console.log('\n--- TEST 3: Upstream Live Synchronization & Ranking ---')
+  // 2. Test Live Fetch & Ranking Accuracy
+  console.log('\n--- TEST 2: Upstream Live Synchronization & Official Rankings ---')
   const engine = new ScoreboardSyncEngine()
   const liveState = await engine.syncNow()
 
   assert(liveState.status === 'connected', 'Sync status is connected')
   assert(Array.isArray(liveState.teams), 'Teams array is present')
-  assert(liveState.teams.length > 0, `Synchronized ${liveState.teams.length} Rajarata University teams`)
+  assert(liveState.teams.length === 21, `Synchronized exactly 21 Rajarata University teams (found: ${liveState.teams.length})`)
 
   const nonRusl = liveState.teams.filter((t) => !isRajarataUniversity(t.university))
-  assert(nonRusl.length === 0, 'Zero teams from other universities present in filtered output')
+  assert(nonRusl.length === 0, 'Zero teams from other universities present in output')
 
-  // Verify World and Island ranks are preserved from full dataset
-  const firstTeam = liveState.teams[0]
-  assert(typeof firstTeam.worldRank === 'number' && firstTeam.worldRank > 0, `Preserved official World Rank (#${firstTeam.worldRank})`)
-  assert(typeof firstTeam.islandRank === 'number' && firstTeam.islandRank > 0, `Preserved official Island Rank (#${firstTeam.islandRank})`)
-  assert(firstTeam.universityRank === 1, 'Top Rajarata team assigned University Rank #1')
+  // 3. Verify Three Official Rankings for all 21 Teams
+  console.log('\n--- TEST 3: Three Official Rankings Verification ---')
+  let allRanksValid = true
+  let uniRankSequential = true
 
-  // Verify monotonicity of University Rank
-  let uniRankCorrect = true
   liveState.teams.forEach((t, i) => {
-    if (t.universityRank !== i + 1) uniRankCorrect = false
+    if (typeof t.worldRank !== 'number' || t.worldRank <= 0) allRanksValid = false
+    if (typeof t.islandRank !== 'number' || t.islandRank <= 0) allRanksValid = false
+    if (t.universityRank !== i + 1) uniRankSequential = false
   })
-  assert(uniRankCorrect, 'University Rank is strictly sequential 1..N')
 
-  // 4. Test Concurrency & Overlap Prevention
-  console.log('\n--- TEST 4: Concurrency & Overlap Prevention ---')
+  assert(allRanksValid, 'All 21 teams possess valid positive World Rank and Sri Lanka Rank')
+  assert(uniRankSequential, 'University Rank is strictly 1..21 according to official competition order')
+
+  const topTeam = liveState.teams[0]
+  assert(topTeam.universityRank === 1, `Rank 1 team is assigned University Rank #1 (${topTeam.teamName})`)
+  assert(typeof topTeam.worldRank === 'number' && topTeam.worldRank > 0, `Top team has preserved official World Rank (#${topTeam.worldRank})`)
+  assert(typeof topTeam.islandRank === 'number' && topTeam.islandRank > 0, `Top team has preserved official Sri Lanka Rank (#${topTeam.islandRank})`)
+
+  // Verify that score, penalty, and solved problem information is removed
+  console.log('\n--- TEST 4: Score Removal & Clean Output Verification ---')
+  let noScoresExposed = true
+  liveState.teams.forEach((t) => {
+    if (t.score !== undefined || t.penalty !== undefined || t.solvedProblems !== undefined) {
+      noScoresExposed = false
+    }
+  })
+  assert(noScoresExposed, 'Zero score, penalty, or solved problem stats present in public team payload')
+
+  // 5. Test Concurrency & Mutex
+  console.log('\n--- TEST 5: Concurrency & Overlap Prevention ---')
   const p1 = engine.syncNow()
   const p2 = engine.syncNow()
   const [res1, res2] = await Promise.all([p1, p2])
   assert(res1 === res2, 'Overlapping sync requests share mutex and return identical cached state')
 
-  // 5. Test Cache Preservation on Error
-  console.log('\n--- TEST 5: Cache Behavior on Failure & Fallback ---')
-  const prevSyncCount = engine.syncCount
+  // 6. Test Cache Behavior on Network Failure
+  console.log('\n--- TEST 6: Cache Behavior on Failure & Fallback ---')
   const originalFetch = engine.fetchScoreboardData.bind(engine)
 
-  // Simulate upstream network failure
   engine.fetchScoreboardData = async () => {
     throw new Error('Simulated upstream network disconnect')
   }
@@ -106,17 +97,10 @@ async function runTestSuite() {
   assert(fallbackState.status === 'cached', 'Status downgraded to cached on failure')
   assert(engine.consecutiveFailures === 1, 'Failure count incremented for backoff')
 
-  // Restore original fetch
   engine.fetchScoreboardData = originalFetch
   const recoveredState = await engine.syncNow()
   assert(recoveredState.status === 'connected', 'Recovered to connected status upon network return')
   assert(engine.consecutiveFailures === 0, 'Consecutive failure count reset to 0')
-
-  // 6. Test Authentication & Expiration Handling
-  console.log('\n--- TEST 6: Authentication & Session Expiration Simulation ---')
-  engine.sessionId = 'dummy-expired-session'
-  engine.isAuthenticated = true
-  assert(engine.getCookieHeader().includes('sessionid='), 'Authenticated cookie header properly constructed')
 
   // Summary
   console.log('\n=================================================================')

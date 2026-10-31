@@ -5,7 +5,6 @@ import type {
   ScoreboardState,
   ScoreboardPayload,
 } from '../types/leaderboard'
-import { demoLeaderboardTeams } from '../data/leaderboard'
 
 const CENTRAL_ENDPOINT = `/api/leaderboard`
 const SNAPSHOT_ENDPOINT = `/data/scoreboard.json`
@@ -46,10 +45,9 @@ export function formatTimeAgo(date: Date | null): string {
 }
 
 /**
- * Fetch the latest scoreboard data following the reliable fallback hierarchy:
+ * Fetch official scoreboard rankings following the verified fallback hierarchy:
  * 1. Centralized server-side sync service (/api/leaderboard)
- * 2. Static verified scoreboard snapshot (/data/scoreboard.json)
- * 3. In-memory demo dataset
+ * 2. Static verified official rankings snapshot (/data/scoreboard.json)
  *
  * Enforces that only Rajarata University teams are ever accepted into state.
  */
@@ -69,14 +67,12 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
 
       let res: Response
       if (force) {
-        // Trigger manual upstream refresh
         res = await fetch(`${CENTRAL_ENDPOINT}/sync`, {
           method: 'POST',
           headers: { Accept: 'application/json' },
           signal: controller.signal,
         })
       } else {
-        // Fetch cached shared state
         res = await fetch(`${CENTRAL_ENDPOINT}?_t=${Date.now()}`, {
           headers: { Accept: 'application/json' },
           signal: controller.signal,
@@ -88,7 +84,6 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
       if (res.ok) {
         const payload = await res.json()
         if (payload && Array.isArray(payload.teams)) {
-          // Strictly validate teams
           const ruslTeams = payload.teams.filter(
             (t: any) => isRajarataUniversity(t.university) || t.isRajarata
           )
@@ -111,9 +106,11 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
             status,
             lastUpdated: updateDate,
             lastUpdatedFormatted: formatTimestamp(updateDate),
-            sourceName: payload.sourceName || (payload.authenticated ? 'CS Academy Authenticated Engine' : 'CS Academy Live Engine'),
+            sourceName: payload.sourceName || (payload.authenticated ? 'CS Academy Official Rankings (Live Authenticated)' : 'CS Academy Official Rankings (Live)'),
             authenticated: payload.authenticated ?? false,
-            totalRegistered: payload.numRegistered || ruslTeams.length,
+            totalRegistered: payload.numOfficialTeams || payload.numRegistered || ruslTeams.length,
+            numOfficialTeams: payload.numOfficialTeams || ruslTeams.length,
+            numSriLankaTeams: payload.numSriLankaTeams || ruslTeams.length,
             numRajarataTeams: ruslTeams.length,
             teams: ruslTeams,
             error: payload.error || null,
@@ -153,9 +150,11 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
             status: 'cached' as ConnectionStatus,
             lastUpdated: snapTime,
             lastUpdatedFormatted: formatTimestamp(snapTime),
-            sourceName: 'CS Academy Verified Standings Snapshot',
+            sourceName: 'CS Academy Official Standings (Snapshot)',
             authenticated: Boolean(snapshotData.authenticated),
-            totalRegistered: snapshotData.numRegistered || strictlyRuslTeams.length,
+            totalRegistered: snapshotData.numOfficialTeams || snapshotData.numRegistered || strictlyRuslTeams.length,
+            numOfficialTeams: snapshotData.numOfficialTeams || strictlyRuslTeams.length,
+            numSriLankaTeams: snapshotData.numSriLankaTeams || strictlyRuslTeams.length,
             numRajarataTeams: strictlyRuslTeams.length,
             teams: strictlyRuslTeams,
             error: null,
@@ -163,21 +162,22 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
         }
       }
     } catch {
-      // Snapshot fetch failed, fallback to demo mode
+      // Snapshot fetch failed
     }
 
-    // 3. Fallback to demo dataset (strictly Rajarata teams only)
-    const strictlyDemoRusl = demoLeaderboardTeams.filter((t) => isRajarataUniversity(t.university) || t.isRajarata)
+    // 3. Fallback: Report connection issue cleanly rather than displaying fabricated rankings
     return {
-      status: 'demo_mode' as ConnectionStatus,
-      lastUpdated: now,
-      lastUpdatedFormatted: formatTimestamp(now),
-      sourceName: 'Simulated Preview Feed',
+      status: 'error' as ConnectionStatus,
+      lastUpdated: null,
+      lastUpdatedFormatted: 'N/A',
+      sourceName: 'CS Academy Official Scoreboard (Offline)',
       authenticated: false,
-      totalRegistered: strictlyDemoRusl.length,
-      numRajarataTeams: strictlyDemoRusl.length,
-      teams: strictlyDemoRusl,
-      error: 'Scoreboard streaming in demo mode.',
+      totalRegistered: 0,
+      numOfficialTeams: 0,
+      numSriLankaTeams: 0,
+      numRajarataTeams: 0,
+      teams: [],
+      error: 'Unable to connect to official CS Academy rankings. Please refresh or check connection.',
     }
   })().finally(() => {
     isFetching = false
@@ -190,25 +190,25 @@ export async function fetchScoreboardData(force = false): Promise<ScoreboardStat
  * Returns strictly Rajarata University teams ranked for the selected category:
  * - 'world': Preserves original official global rank.
  * - 'island': Preserves original official Sri Lankan rank.
- * - 'university': Shows internal position among Rajarata University teams only.
+ * - 'university': Shows position among Rajarata University teams only.
  */
 export function getScopedLeaderboard(
   teams: LeaderboardTeam[],
   category: LeaderboardCategory,
   searchQuery = ''
-): (LeaderboardTeam & { displayRank: number })[] {
+): (LeaderboardTeam & { displayRank: number | null })[] {
   // STRICT FILTER: Guarantee zero teams from other universities
   const ruslTeams = teams.filter((t) => isRajarataUniversity(t.university) || t.isRajarata)
 
   // Map each team with the appropriate display rank for the selected category
   const mapped = ruslTeams.map((team) => {
-    let displayRank = team.universityRank ?? 1
+    let displayRank: number | null = team.universityRank ?? null
     if (category === 'world') {
-      displayRank = team.worldRank
+      displayRank = team.worldRank ?? null
     } else if (category === 'island') {
-      displayRank = team.islandRank ?? team.worldRank
+      displayRank = team.islandRank ?? null
     } else {
-      displayRank = team.universityRank ?? 1
+      displayRank = team.universityRank ?? null
     }
 
     return {
@@ -217,20 +217,17 @@ export function getScopedLeaderboard(
     }
   })
 
-  // Sort according to category rank:
+  // Sort strictly according to active category rank:
   mapped.sort((a, b) => {
-    if (category === 'world') {
-      return a.worldRank - b.worldRank
-    }
-    if (category === 'island') {
-      return (a.islandRank ?? a.worldRank) - (b.islandRank ?? b.worldRank)
-    }
-    return (a.universityRank ?? 1) - (b.universityRank ?? 1)
+    const rankA = a.displayRank != null && a.displayRank > 0 ? a.displayRank : 999999
+    const rankB = b.displayRank != null && b.displayRank > 0 ? b.displayRank : 999999
+    return rankA - rankB
   })
 
   const q = searchQuery.trim().toLowerCase()
   if (!q) return mapped
 
+  // Searching filters teams without recalculating or modifying their official ranks
   return mapped.filter(
     (t) =>
       t.teamName.toLowerCase().includes(q) ||

@@ -6,13 +6,15 @@ import {
   X,
   ChevronRight,
   Clock,
-  CheckCircle2,
   MapPin,
   Building2,
   Sparkles,
   ArrowUpRight,
   RefreshCw,
   ExternalLink,
+  ShieldCheck,
+  Globe,
+  Flag,
 } from 'lucide-react'
 import type {
   LeaderboardCategory,
@@ -27,7 +29,6 @@ import {
   getScopedLeaderboard,
   isRajarataUniversity,
 } from '../services/leaderboardService'
-import { demoLeaderboardTeams } from '../data/leaderboard'
 
 export function Leaderboard() {
   const [activeCategory, setActiveCategory] = useState<LeaderboardCategory>('world')
@@ -35,12 +36,10 @@ export function Leaderboard() {
   const [selectedTeam, setSelectedTeam] = useState<LeaderboardTeam | null>(null)
 
   // Leaderboard data state (strictly Rajarata University teams)
-  const [teams, setTeams] = useState<LeaderboardTeam[]>(() =>
-    demoLeaderboardTeams.filter((t) => isRajarataUniversity(t.university) || t.isRajarata)
-  )
+  const [teams, setTeams] = useState<LeaderboardTeam[]>([])
   const [status, setStatus] = useState<ConnectionStatus>('cached')
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  const [sourceName, setSourceName] = useState<string>('CS Academy Scoreboard')
+  const [sourceName, setSourceName] = useState<string>('CS Academy Official Standings')
   const [isUpdating, setIsUpdating] = useState<boolean>(false)
   const [relativeTimeStr, setRelativeTimeStr] = useState<string>('Just now')
 
@@ -105,14 +104,20 @@ export function Leaderboard() {
   // Helper for podium badge text
   const getPodiumBadgeText = (team: LeaderboardTeam, position: 1 | 2 | 3) => {
     if (activeCategory === 'world') {
-      return `WORLD #${team.worldRank}`
+      return team.worldRank != null ? `WORLD #${team.worldRank}` : 'WORLD N/A'
     }
     if (activeCategory === 'island') {
-      return `ISLAND #${team.islandRank ?? 'N/A'}`
+      return team.islandRank != null ? `ISLAND #${team.islandRank}` : 'ISLAND N/A'
     }
     if (position === 1) return '#01 RUSL CHAMPION'
     if (position === 2) return '#02 RUSL SILVER'
     return '#03 RUSL BRONZE'
+  }
+
+  // Format rank number helper
+  const formatRank = (val: number | null | undefined): string => {
+    if (val == null || isNaN(val) || val <= 0) return 'N/A'
+    return `#${val}`
   }
 
   // Close modal on Escape
@@ -147,7 +152,7 @@ export function Leaderboard() {
 
           {status === 'connected' && (
             <span className="leaderboard-status-badge leaderboard-status-badge--connected">
-              LIVE SCOREBOARD
+              OFFICIAL RANKINGS
             </span>
           )}
           {status === 'syncing' && (
@@ -157,7 +162,7 @@ export function Leaderboard() {
           )}
           {status === 'cached' && (
             <span className="leaderboard-status-badge leaderboard-status-badge--cached">
-              CACHED DATA
+              OFFICIAL RANKINGS (CACHED)
             </span>
           )}
           {status === 'error' && (
@@ -167,34 +172,34 @@ export function Leaderboard() {
           )}
           {status === 'demo_mode' && (
             <span className="leaderboard-status-badge leaderboard-status-badge--demo">
-              DEMO MODE
+              OFFLINE
             </span>
           )}
 
           <p className="leaderboard-demo-copy">
             {status === 'connected' && (
               <>
-                <strong>CS Academy Live Scoring Engine.</strong> Real-time synchronized standings for Rajarata University of Sri Lanka delegations.
+                <strong>CS Academy Official Rankings.</strong> Verified competition rankings for Rajarata University of Sri Lanka delegations.
               </>
             )}
             {status === 'syncing' && (
               <>
-                <strong>Synchronizing with CS Academy.</strong> Updating live scores and rankings from official scoring engine.
+                <strong>Synchronizing with CS Academy.</strong> Updating live rankings directly from official competition scoreboard.
               </>
             )}
             {status === 'cached' && (
               <>
-                <strong>CS Academy Official Standings (Cached).</strong> Displaying verified official standings snapshot. Auto-sync active.
+                <strong>CS Academy Official Standings (Cached).</strong> Displaying verified official competition standings. Auto-sync active.
               </>
             )}
             {status === 'error' && (
               <>
-                <strong>Connection to CS Academy delayed.</strong> Preserving last verified standings snapshot. Retrying with exponential backoff.
+                <strong>Connection to CS Academy delayed.</strong> Retrying with backoff. Preserving verified official rankings.
               </>
             )}
             {status === 'demo_mode' && (
               <>
-                <strong>Sample leaderboard preview.</strong> Official stream will populate once connection is established.
+                <strong>Waiting for official scoreboard feed.</strong> Standings will populate upon upstream connection.
               </>
             )}
           </p>
@@ -208,7 +213,7 @@ export function Leaderboard() {
                 ? 'SYNCING...'
                 : lastUpdated
                 ? `UPDATED ${relativeTimeStr.toUpperCase()} (${formatTimestamp(lastUpdated)})`
-                : 'SYNCHRONIZING...'}
+                : 'INITIALIZING...'}
             </span>
           </div>
 
@@ -220,13 +225,13 @@ export function Leaderboard() {
             title="Force immediate scoreboard synchronization"
             aria-label="Refresh scoreboard data"
           >
-            <RefreshCw size={12} className={isUpdating ? 'spin-icon' : ''} />
-            <span>{isUpdating ? 'Updating' : 'Sync Now'}</span>
+            <RefreshCw size={12} className={isUpdating ? 'animate-spin' : ''} />
+            <span>Sync Now</span>
           </button>
         </div>
       </div>
 
-      {/* Control Bar: Categories & Search */}
+      {/* Controls: Ranking Category Tabs & Search Bar */}
       <div className="leaderboard-controls">
         <div className="leaderboard-tabs" role="tablist" aria-label="Ranking Categories">
           <button
@@ -249,7 +254,7 @@ export function Leaderboard() {
             className={`leaderboard-tab ${activeCategory === 'island' ? 'leaderboard-tab--active' : ''}`}
             onClick={() => setActiveCategory('island')}
           >
-            <span className="leaderboard-tab__label">Island Rank</span>
+            <span className="leaderboard-tab__label">Sri Lanka Rank</span>
             <span className="leaderboard-tab__count">
               {totalRajarataTeams > 0 ? `${totalRajarataTeams} RUSL Teams` : 'Sri Lanka Standing'}
             </span>
@@ -262,14 +267,14 @@ export function Leaderboard() {
             className={`leaderboard-tab ${activeCategory === 'university' ? 'leaderboard-tab--active' : ''}`}
             onClick={() => setActiveCategory('university')}
           >
-            <span className="leaderboard-tab__label">University Rank</span>
+            <span className="leaderboard-tab__label">Rajarata University Rank</span>
             <span className="leaderboard-tab__count">
               {totalRajarataTeams > 0 ? `${totalRajarataTeams} RUSL Teams` : 'Campus Standings'}
             </span>
           </button>
         </div>
 
-        {/* Search Input (Strictly searches Rajarata teams) */}
+        {/* Search Input (Strictly searches Rajarata teams without altering ranks) */}
         <div className="leaderboard-search-wrap">
           <Search size={16} className="leaderboard-search-icon" />
           <input
@@ -298,8 +303,8 @@ export function Leaderboard() {
         <div className="leaderboard-scope-info">
           <span className="leaderboard-scope-tag">
             {activeCategory === 'world' && '🌐 Official Global Standing — Rajarata University of Sri Lanka Delegations'}
-            {activeCategory === 'island' && '🇱🇰 Official Island Standing — Rajarata University Teams Among Sri Lankan Universities'}
-            {activeCategory === 'university' && '🏛️ Internal Campus Standing — Rajarata University of Sri Lanka Standings'}
+            {activeCategory === 'island' && '🇱🇰 Official Sri Lanka Standing — Rajarata University Teams Among Sri Lankan Universities'}
+            {activeCategory === 'university' && '🏛️ Rajarata University Standings — Internal Order Based on Official Competition Results'}
           </span>
           <span className="leaderboard-scope-meta">
             Showing {rankedTeams.length} {rankedTeams.length === 1 ? 'team' : 'teams'} (Rajarata University Only)
@@ -310,10 +315,10 @@ export function Leaderboard() {
         </div>
       </div>
 
-      {/* Top 3 Podium (Strictly Rajarata University Teams) */}
+      {/* Top 3 Podium (Strictly Rajarata University Teams in Correct Rank Order) */}
       {showPodium && (
         <div className="leaderboard-podium">
-          {/* Rank 2: Silver */}
+          {/* Rank 2: Silver (Left) */}
           {topThree[1] && (
             <article
               className="podium-card podium-card--silver"
@@ -335,14 +340,22 @@ export function Leaderboard() {
               <div className="podium-card__country">
                 <MapPin size={12} /> {topThree[1].country} ({topThree[1].countryCode})
               </div>
-              <div className="podium-card__score-box">
-                <span className="podium-score-val">{topThree[1].score.toFixed(2)} PTS</span>
-                <span className="podium-score-meta">
-                  {topThree[1].solved} solved · {topThree[1].penalty}m penalty
+
+              {/* Three Official Rankings Summary */}
+              <div className="podium-card__rankings-box">
+                <span className={`podium-rank-tag ${activeCategory === 'world' ? 'podium-rank-tag--active' : ''}`}>
+                  World {formatRank(topThree[1].worldRank)}
+                </span>
+                <span className={`podium-rank-tag ${activeCategory === 'island' ? 'podium-rank-tag--active' : ''}`}>
+                  Island {formatRank(topThree[1].islandRank)}
+                </span>
+                <span className={`podium-rank-tag ${activeCategory === 'university' ? 'podium-rank-tag--active' : ''}`}>
+                  RUSL #{topThree[1].universityRank ?? 'N/A'}
                 </span>
               </div>
+
               <span className="podium-card__view-btn">
-                Inspect Breakdown <ArrowUpRight size={13} />
+                Official Standing <ArrowUpRight size={13} />
               </span>
             </article>
           )}
@@ -372,21 +385,27 @@ export function Leaderboard() {
               <div className="podium-card__country">
                 <MapPin size={12} /> {topThree[0].country} ({topThree[0].countryCode})
               </div>
-              <div className="podium-card__score-box podium-card__score-box--gold">
-                <span className="podium-score-val podium-score-val--gold">
-                  {topThree[0].score.toFixed(2)} PTS
+
+              {/* Three Official Rankings Summary */}
+              <div className="podium-card__rankings-box">
+                <span className={`podium-rank-tag ${activeCategory === 'world' ? 'podium-rank-tag--active' : ''}`}>
+                  World {formatRank(topThree[0].worldRank)}
                 </span>
-                <span className="podium-score-meta">
-                  {topThree[0].solved} solved · {topThree[0].penalty}m penalty
+                <span className={`podium-rank-tag ${activeCategory === 'island' ? 'podium-rank-tag--active' : ''}`}>
+                  Island {formatRank(topThree[0].islandRank)}
+                </span>
+                <span className={`podium-rank-tag ${activeCategory === 'university' ? 'podium-rank-tag--active' : ''}`}>
+                  RUSL #{topThree[0].universityRank ?? 'N/A'}
                 </span>
               </div>
+
               <span className="podium-card__view-btn podium-card__view-btn--gold">
-                Inspect Breakdown <ArrowUpRight size={13} />
+                Official Standing <ArrowUpRight size={13} />
               </span>
             </article>
           )}
 
-          {/* Rank 3: Bronze */}
+          {/* Rank 3: Bronze (Right) */}
           {topThree[2] && (
             <article
               className="podium-card podium-card--bronze"
@@ -408,14 +427,22 @@ export function Leaderboard() {
               <div className="podium-card__country">
                 <MapPin size={12} /> {topThree[2].country} ({topThree[2].countryCode})
               </div>
-              <div className="podium-card__score-box">
-                <span className="podium-score-val">{topThree[2].score.toFixed(2)} PTS</span>
-                <span className="podium-score-meta">
-                  {topThree[2].solved} solved · {topThree[2].penalty}m penalty
+
+              {/* Three Official Rankings Summary */}
+              <div className="podium-card__rankings-box">
+                <span className={`podium-rank-tag ${activeCategory === 'world' ? 'podium-rank-tag--active' : ''}`}>
+                  World {formatRank(topThree[2].worldRank)}
+                </span>
+                <span className={`podium-rank-tag ${activeCategory === 'island' ? 'podium-rank-tag--active' : ''}`}>
+                  Island {formatRank(topThree[2].islandRank)}
+                </span>
+                <span className={`podium-rank-tag ${activeCategory === 'university' ? 'podium-rank-tag--active' : ''}`}>
+                  RUSL #{topThree[2].universityRank ?? 'N/A'}
                 </span>
               </div>
+
               <span className="podium-card__view-btn">
-                Inspect Breakdown <ArrowUpRight size={13} />
+                Official Standing <ArrowUpRight size={13} />
               </span>
             </article>
           )}
@@ -433,14 +460,12 @@ export function Leaderboard() {
                     {activeCategory === 'world'
                       ? 'World Rank'
                       : activeCategory === 'island'
-                      ? 'Island Rank'
+                      ? 'Sri Lanka Rank'
                       : 'RUSL Rank'}
                   </th>
-                  <th className="th-team">Team & Affiliation</th>
+                  <th className="th-team">Team &amp; Affiliation</th>
                   <th className="th-country">Region</th>
-                  <th className="th-solved">Solved</th>
-                  <th className="th-penalty">Penalty</th>
-                  <th className="th-score">Score</th>
+                  <th className="th-ranks">Official Rankings Overview</th>
                   <th className="th-action"><span className="sr-only">Details</span></th>
                 </tr>
               </thead>
@@ -452,7 +477,7 @@ export function Leaderboard() {
                     onClick={() => setSelectedTeam(team)}
                     tabIndex={0}
                     role="button"
-                    aria-label={`View team breakdown for ${team.teamName}`}
+                    aria-label={`View official rankings for ${team.teamName}`}
                     onKeyDown={(e) => e.key === 'Enter' && setSelectedTeam(team)}
                   >
                     <td className="td-rank">
@@ -463,7 +488,7 @@ export function Leaderboard() {
                             : ''
                         }`}
                       >
-                        #{team.displayRank < 10 ? `0${team.displayRank}` : team.displayRank}
+                        {formatRank(team.displayRank)}
                       </span>
                     </td>
                     <td className="td-team">
@@ -478,25 +503,24 @@ export function Leaderboard() {
                         <span className="country-badge__name">{team.country}</span>
                       </span>
                     </td>
-                    <td className="td-solved">
-                      <span className="solved-badge">
-                        <CheckCircle2 size={13} />
-                        {team.solved}
-                        {team.partiallySolved ? ` (+${team.partiallySolved})` : ''}
-                      </span>
-                    </td>
-                    <td className="td-penalty">
-                      <span className="penalty-val">{team.penalty}m</span>
-                    </td>
-                    <td className="td-score">
-                      <strong className="score-val">{team.score.toFixed(2)}</strong>
-                      <span className="score-unit">pts</span>
+                    <td className="td-ranks">
+                      <div className="table-rank-tags">
+                        <span className={`table-rank-tag ${activeCategory === 'world' ? 'table-rank-tag--active' : ''}`}>
+                          World {formatRank(team.worldRank)}
+                        </span>
+                        <span className={`table-rank-tag ${activeCategory === 'island' ? 'table-rank-tag--active' : ''}`}>
+                          Island {formatRank(team.islandRank)}
+                        </span>
+                        <span className={`table-rank-tag ${activeCategory === 'university' ? 'table-rank-tag--active' : ''}`}>
+                          RUSL #{team.universityRank ?? 'N/A'}
+                        </span>
+                      </div>
                     </td>
                     <td className="td-action">
                       <button
                         type="button"
                         className="btn-inspect-row"
-                        aria-label={`Open stats for ${team.teamName}`}
+                        aria-label={`Open standing details for ${team.teamName}`}
                         onClick={(e) => {
                           e.stopPropagation()
                           setSelectedTeam(team)
@@ -515,20 +539,20 @@ export function Leaderboard() {
             <div className="leaderboard-footer-left">
               <span className="telemetry-live-dot" />
               <span>
-                Scoreboard data sourced from{' '}
+                Official rankings sourced directly from{' '}
                 <a
                   href="https://csacademy.com/ieeextreme20/scoreboard/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="leaderboard-attribution-link"
                 >
-                  CS Academy <ExternalLink size={10} />
+                  CS Academy Scoreboard <ExternalLink size={10} />
                 </a>{' '}
-                (IEEEXtreme 20.0 Official Scoring Engine) · Filtered strictly for Rajarata University of Sri Lanka.
+                (Contest #133706) · Preserving original World and Sri Lanka rankings.
               </span>
             </div>
             <div className="leaderboard-footer-right">
-              <span>IEEE XTREME 3.0 / RUSL Scoring Engine</span>
+              <span>IEEE XTREME 3.0 / RUSL Delegation</span>
             </div>
           </div>
         </div>
@@ -552,7 +576,7 @@ export function Leaderboard() {
         </div>
       )}
 
-      {/* Team Details Modal */}
+      {/* Team Details Modal (Official Rankings Focus) */}
       {selectedTeam && (
         <div
           className="leaderboard-modal-overlay"
@@ -576,7 +600,7 @@ export function Leaderboard() {
 
             <div className="modal-header">
               <div className="modal-topline">
-                <span className="modal-demo-tag">RAJARATA UNIVERSITY TEAM</span>
+                <span className="modal-demo-tag">OFFICIAL RUSL DELEGATION</span>
                 <span className="modal-country-tag">
                   <MapPin size={12} /> {selectedTeam.country} ({selectedTeam.countryCode})
                 </span>
@@ -587,72 +611,62 @@ export function Leaderboard() {
               </p>
             </div>
 
-            {/* Standings Grid: Preserved Original Official Ranks */}
-            <div className="modal-stats-grid">
+            {/* Three Official Rankings Grid */}
+            <div className="modal-stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
               <div className="modal-stat-card">
-                <span className="stat-label">Official World Rank</span>
+                <span className="stat-label">
+                  <Globe size={11} style={{ display: 'inline', marginRight: '4px' }} />
+                  Official World Rank
+                </span>
                 <span className="stat-value stat-value--cyan">
-                  {selectedTeam.worldRank ? `#${selectedTeam.worldRank}` : '—'}
+                  {formatRank(selectedTeam.worldRank)}
                 </span>
               </div>
               <div className="modal-stat-card">
-                <span className="stat-label">Official Island Rank</span>
+                <span className="stat-label">
+                  <Flag size={11} style={{ display: 'inline', marginRight: '4px' }} />
+                  Official Sri Lanka Rank
+                </span>
                 <span className="stat-value">
-                  {selectedTeam.islandRank ? `#${selectedTeam.islandRank}` : 'N/A'}
+                  {formatRank(selectedTeam.islandRank)}
                 </span>
               </div>
               <div className="modal-stat-card">
-                <span className="stat-label">University Rank</span>
+                <span className="stat-label">
+                  <Trophy size={11} style={{ display: 'inline', marginRight: '4px' }} />
+                  Rajarata University Rank
+                </span>
                 <span className="stat-value stat-value--purple">
                   {selectedTeam.universityRank ? `#${selectedTeam.universityRank}` : 'N/A'}
                 </span>
               </div>
-              <div className="modal-stat-card">
-                <span className="stat-label">Total Score</span>
-                <span className="stat-value stat-value--gold">
-                  {selectedTeam.score.toFixed(2)} <small>pts</small>
-                </span>
-              </div>
             </div>
 
-            {/* Solved Problems Breakdown */}
+            {/* Verification Section */}
             <div className="modal-problems-section">
               <div className="modal-section-title">
-                <CheckCircle2 size={16} />
-                <h4>
-                  Challenge Breakdown ({selectedTeam.solvedProblems.length} Tasks Recorded)
-                </h4>
+                <ShieldCheck size={16} />
+                <h4>Official Scoreboard Verification</h4>
               </div>
-
-              {selectedTeam.solvedProblems.length > 0 ? (
-                <div className="modal-problems-list">
-                  {selectedTeam.solvedProblems.map((p) => (
-                    <div className="problem-item" key={p.id}>
-                      <div className="problem-item__code">
-                        <span className="problem-code-badge">{p.id}</span>
-                        <div className="problem-meta">
-                          <span className="problem-name">{p.name}</span>
-                          <span className="problem-time">
-                            <Clock size={11} /> Solved at {p.time}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="problem-item__points">
-                        <span className="problem-points-val">
-                          {p.points > 0 ? `+${p.points}` : '0.0'} pts
-                        </span>
-                        <span className="problem-attempts">
-                          {p.attempts} {p.attempts === 1 ? 'attempt' : 'attempts'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="no-problems-note" style={{ color: '#94a3b8', fontSize: '13px' }}>
-                  No submission task logs recorded yet for this team.
+              <div style={{
+                background: 'rgba(15, 23, 42, 0.5)',
+                border: '1px solid rgba(148, 163, 184, 0.12)',
+                borderRadius: '8px',
+                padding: '16px',
+                color: '#cbd5e1',
+                fontSize: '13px',
+                lineHeight: '1.6'
+              }}>
+                <p style={{ margin: '0 0 8px' }}>
+                  <strong>Team:</strong> {selectedTeam.teamName}
                 </p>
-              )}
+                <p style={{ margin: '0 0 8px' }}>
+                  <strong>Affiliation:</strong> {selectedTeam.university}
+                </p>
+                <p style={{ margin: 0, color: '#94a3b8', fontSize: '12px' }}>
+                  This team’s official global and national standings are retrieved directly from the CS Academy IEEEXtreme 20.0 competition scoreboard (Contest #133706). World Rank reflects official placement among all competing teams worldwide, and Sri Lanka Rank reflects official standing among all participating teams across Sri Lankan universities.
+                </p>
+              </div>
             </div>
 
             <div className="modal-footer">
