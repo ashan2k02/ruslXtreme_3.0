@@ -277,6 +277,26 @@ export class ScoreboardSyncEngine {
     }
 
     const json = await res.json()
+
+    // If authenticated, also retrieve dynamic pointsWorth from contest tasks
+    if (this.sessionId) {
+      try {
+        const tasksRes = await fetch(`${CSACADEMY_BASE}/contest/get_contest_tasks/?contestId=${CONTEST_ID}`, { headers })
+        if (tasksRes.ok) {
+          const taskData = await tasksRes.json()
+          if (taskData.state?.ContestTask && Array.isArray(taskData.state.ContestTask)) {
+            for (const ct of taskData.state.ContestTask) {
+              if (ct.id && typeof ct.pointsWorth === 'number' && ct.pointsWorth > 0) {
+                this.taskWeights[String(ct.id)] = ct.pointsWorth
+              }
+            }
+          }
+        }
+      } catch {
+        // Fallback to verified default weights
+      }
+    }
+
     return json
   }
 
