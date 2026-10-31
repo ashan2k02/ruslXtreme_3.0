@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   Trophy,
   Medal,
@@ -11,39 +11,94 @@ import {
   Building2,
   Sparkles,
   ArrowUpRight,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react'
+import type {
+  LeaderboardCategory,
+  LeaderboardTeam,
+  ConnectionStatus,
+  ScoreboardState,
+} from '../types/leaderboard'
 import {
-  getLeaderboardForCategory,
-  type LeaderboardCategory,
-  type LeaderboardTeam,
-} from '../data/leaderboard'
+  fetchScoreboardData,
+  formatTimeAgo,
+  formatTimestamp,
+  getScopedLeaderboard,
+} from '../services/leaderboardService'
+import { demoLeaderboardTeams } from '../data/leaderboard'
 
 export function Leaderboard() {
   const [activeCategory, setActiveCategory] = useState<LeaderboardCategory>('world')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTeam, setSelectedTeam] = useState<LeaderboardTeam | null>(null)
 
-  // Get ranked teams for current category
-  const categoryTeams = useMemo(() => {
-    return getLeaderboardForCategory(activeCategory)
-  }, [activeCategory])
+  // Leaderboard data state
+  const [teams, setTeams] = useState<LeaderboardTeam[]>(demoLeaderboardTeams)
+  const [status, setStatus] = useState<ConnectionStatus>('cached')
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [sourceName, setSourceName] = useState<string>('CS Academy Scoreboard')
+  const [isUpdating, setIsUpdating] = useState<boolean>(false)
+  const [relativeTimeStr, setRelativeTimeStr] = useState<string>('Just now')
 
-  // Filter by search query
-  const filteredTeams = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase()
-    if (!q) return categoryTeams
-    return categoryTeams.filter(
-      (t) =>
-        t.teamName.toLowerCase().includes(q) ||
-        t.university.toLowerCase().includes(q) ||
-        t.country.toLowerCase().includes(q)
-    )
-  }, [categoryTeams, searchQuery])
+  // Fetch or refresh handler
+  const loadScoreboard = useCallback(async (isManual = false) => {
+    setIsUpdating(true)
+    try {
+      const result: ScoreboardState = await fetchScoreboardData(isManual)
+      setTeams(result.teams)
+      setStatus(result.status)
+      setLastUpdated(result.lastUpdated)
+      setSourceName(result.sourceName)
+      if (result.lastUpdated) {
+        setRelativeTimeStr(formatTimeAgo(result.lastUpdated))
+      }
+    } catch (err) {
+      console.warn('Scoreboard fetch encountered an issue, retaining existing state:', err)
+    } finally {
+      setIsUpdating(false)
+    }
+  }, [])
 
-  // Top 3 for podium (only shown when not actively searching or when all results match)
-  const showPodium = searchQuery.trim() === '' && filteredTeams.length >= 3
-  const topThree = showPodium ? filteredTeams.slice(0, 3) : []
-  const tableTeams = showPodium ? filteredTeams.slice(3) : filteredTeams
+  // Initial load and periodic auto-refresh (every 60s)
+  useEffect(() => {
+    loadScoreboard(false)
+
+    const syncInterval = setInterval(() => {
+      loadScoreboard(false)
+    }, 60000)
+
+    return () => clearInterval(syncInterval)
+  }, [loadScoreboard])
+
+  // Relative time tick (every 10s)
+  useEffect(() => {
+    const timeInterval = setInterval(() => {
+      if (lastUpdated) {
+        setRelativeTimeStr(formatTimeAgo(lastUpdated))
+      }
+    }, 10000)
+
+    return () => clearInterval(timeInterval)
+  }, [lastUpdated])
+
+  // Get ranked teams for current category & search
+  const rankedTeams = useMemo(() => {
+    return getScopedLeaderboard(teams, activeCategory, searchQuery)
+  }, [teams, activeCategory, searchQuery])
+
+  // Counts for tabs
+  const categoryCounts = useMemo(() => {
+    const worldCount = teams.length
+    const islandCount = teams.filter((t) => t.isSriLanka).length
+    const uniCount = teams.filter((t) => t.isRajarata).length
+    return { worldCount, islandCount, uniCount }
+  }, [teams])
+
+  // Top 3 for podium (only shown when not actively searching and at least 3 teams available)
+  const showPodium = searchQuery.trim() === '' && rankedTeams.length >= 3
+  const topThree = showPodium ? rankedTeams.slice(0, 3) : []
+  const tableTeams = showPodium ? rankedTeams.slice(3) : rankedTeams
 
   // Close modal on Escape
   useEffect(() => {
@@ -64,20 +119,74 @@ export function Leaderboard() {
 
   return (
     <div className="leaderboard-container">
-      {/* Top Banner: Clear Demo Mode Indicator */}
+      {/* Top Banner: Real Connection / Live Status Indicator */}
       <div className="leaderboard-demo-banner">
         <div className="leaderboard-demo-banner__left">
           <span className="leaderboard-live-dot">
-            <span className="pulse-dot" />
+            {status === 'connected' && <span className="pulse-dot pulse-dot--live" />}
+            {status === 'cached' && <span className="pulse-dot pulse-dot--cached" />}
+            {status === 'updating' && <span className="pulse-dot pulse-dot--updating" />}
+            {status === 'demo_mode' && <span className="pulse-dot" />}
           </span>
-          <span className="leaderboard-demo-badge">DEMO MODE</span>
+
+          {status === 'connected' && (
+            <span className="leaderboard-status-badge leaderboard-status-badge--connected">
+              LIVE SCOREBOARD
+            </span>
+          )}
+          {status === 'cached' && (
+            <span className="leaderboard-status-badge leaderboard-status-badge--cached">
+              OFFICIAL STANDINGS
+            </span>
+          )}
+          {status === 'demo_mode' && (
+            <span className="leaderboard-status-badge leaderboard-status-badge--demo">
+              DEMO MODE
+            </span>
+          )}
+
           <p className="leaderboard-demo-copy">
-            <strong>Sample leaderboard data.</strong> Live data stream integration coming soon. Official results will populate here once the contest commences.
+            {status === 'connected' && (
+              <>
+                <strong>CS Academy Live Scoring Engine.</strong> Connected to official IEEEXtreme 20.0 competition telemetry.
+              </>
+            )}
+            {status === 'cached' && (
+              <>
+                <strong>CS Academy Official Standings.</strong> Synchronized from verified scoring snapshot. Auto-sync active.
+              </>
+            )}
+            {status === 'demo_mode' && (
+              <>
+                <strong>Sample leaderboard preview.</strong> Official stream will populate once connection is established.
+              </>
+            )}
           </p>
         </div>
+
         <div className="leaderboard-demo-banner__right">
-          <Clock size={13} />
-          <span>SIMULATED STREAM · T+04:30:00</span>
+          <div className="leaderboard-sync-info">
+            <Clock size={13} />
+            <span>
+              {isUpdating
+                ? 'SYNCING...'
+                : lastUpdated
+                ? `UPDATED ${relativeTimeStr.toUpperCase()} (${formatTimestamp(lastUpdated)})`
+                : 'SYNCHRONIZING...'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="leaderboard-refresh-btn"
+            onClick={() => loadScoreboard(true)}
+            disabled={isUpdating}
+            title="Force immediate scoreboard synchronization"
+            aria-label="Refresh scoreboard data"
+          >
+            <RefreshCw size={12} className={isUpdating ? 'spin-icon' : ''} />
+            <span>{isUpdating ? 'Updating' : 'Sync Now'}</span>
+          </button>
         </div>
       </div>
 
@@ -92,7 +201,9 @@ export function Leaderboard() {
             onClick={() => setActiveCategory('world')}
           >
             <span className="leaderboard-tab__label">World Rank</span>
-            <span className="leaderboard-tab__count">All Regions</span>
+            <span className="leaderboard-tab__count">
+              {categoryCounts.worldCount > 0 ? `${categoryCounts.worldCount} Teams` : 'All Regions'}
+            </span>
           </button>
 
           <button
@@ -103,7 +214,9 @@ export function Leaderboard() {
             onClick={() => setActiveCategory('island')}
           >
             <span className="leaderboard-tab__label">Island Rank</span>
-            <span className="leaderboard-tab__count">Sri Lanka</span>
+            <span className="leaderboard-tab__count">
+              {categoryCounts.islandCount > 0 ? `${categoryCounts.islandCount} SL Teams` : 'Sri Lanka'}
+            </span>
           </button>
 
           <button
@@ -114,7 +227,9 @@ export function Leaderboard() {
             onClick={() => setActiveCategory('university')}
           >
             <span className="leaderboard-tab__label">University Rank</span>
-            <span className="leaderboard-tab__count">Rajarata University</span>
+            <span className="leaderboard-tab__count">
+              {categoryCounts.uniCount > 0 ? `${categoryCounts.uniCount} Rajarata Teams` : 'Rajarata Uni'}
+            </span>
           </button>
         </div>
 
@@ -146,13 +261,16 @@ export function Leaderboard() {
       <div className="leaderboard-scope-bar">
         <div className="leaderboard-scope-info">
           <span className="leaderboard-scope-tag">
-            {activeCategory === 'world' && '🌐 Global Standing (Worldwide)'}
+            {activeCategory === 'world' && '🌐 Global Standing (Worldwide Participating Teams)'}
             {activeCategory === 'island' && '🇱🇰 National Standing (Sri Lanka Universities)'}
             {activeCategory === 'university' && '🏛️ Host Institution Standing (Rajarata University of Sri Lanka)'}
           </span>
           <span className="leaderboard-scope-meta">
-            Showing {filteredTeams.length} {filteredTeams.length === 1 ? 'team' : 'teams'} in category
+            Showing {rankedTeams.length} {rankedTeams.length === 1 ? 'team' : 'teams'} in category
           </span>
+        </div>
+        <div className="leaderboard-source-tag">
+          <span>Source: {sourceName}</span>
         </div>
       </div>
 
@@ -179,11 +297,13 @@ export function Leaderboard() {
               <h4 className="podium-card__name">{topThree[1].teamName}</h4>
               <p className="podium-card__university">{topThree[1].university}</p>
               <div className="podium-card__country">
-                <MapPin size={12} /> {topThree[1].country}
+                <MapPin size={12} /> {topThree[1].country} ({topThree[1].countryCode})
               </div>
               <div className="podium-card__score-box">
-                <span className="podium-score-val">{topThree[1].score.toLocaleString()} PTS</span>
-                <span className="podium-score-meta">{topThree[1].solved} solved · {topThree[1].penalty}m pen</span>
+                <span className="podium-score-val">{topThree[1].score.toFixed(2)} PTS</span>
+                <span className="podium-score-meta">
+                  {topThree[1].solved} solved · {topThree[1].penalty}m penalty
+                </span>
               </div>
               <span className="podium-card__view-btn">
                 Inspect Breakdown <ArrowUpRight size={13} />
@@ -214,11 +334,15 @@ export function Leaderboard() {
               <h4 className="podium-card__name podium-card__name--gold">{topThree[0].teamName}</h4>
               <p className="podium-card__university">{topThree[0].university}</p>
               <div className="podium-card__country">
-                <MapPin size={12} /> {topThree[0].country}
+                <MapPin size={12} /> {topThree[0].country} ({topThree[0].countryCode})
               </div>
               <div className="podium-card__score-box podium-card__score-box--gold">
-                <span className="podium-score-val podium-score-val--gold">{topThree[0].score.toLocaleString()} PTS</span>
-                <span className="podium-score-meta">{topThree[0].solved} solved · {topThree[0].penalty}m pen</span>
+                <span className="podium-score-val podium-score-val--gold">
+                  {topThree[0].score.toFixed(2)} PTS
+                </span>
+                <span className="podium-score-meta">
+                  {topThree[0].solved} solved · {topThree[0].penalty}m penalty
+                </span>
               </div>
               <span className="podium-card__view-btn podium-card__view-btn--gold">
                 Inspect Breakdown <ArrowUpRight size={13} />
@@ -246,11 +370,13 @@ export function Leaderboard() {
               <h4 className="podium-card__name">{topThree[2].teamName}</h4>
               <p className="podium-card__university">{topThree[2].university}</p>
               <div className="podium-card__country">
-                <MapPin size={12} /> {topThree[2].country}
+                <MapPin size={12} /> {topThree[2].country} ({topThree[2].countryCode})
               </div>
               <div className="podium-card__score-box">
-                <span className="podium-score-val">{topThree[2].score.toLocaleString()} PTS</span>
-                <span className="podium-score-meta">{topThree[2].solved} solved · {topThree[2].penalty}m pen</span>
+                <span className="podium-score-val">{topThree[2].score.toFixed(2)} PTS</span>
+                <span className="podium-score-meta">
+                  {topThree[2].solved} solved · {topThree[2].penalty}m penalty
+                </span>
               </div>
               <span className="podium-card__view-btn">
                 Inspect Breakdown <ArrowUpRight size={13} />
@@ -307,14 +433,15 @@ export function Leaderboard() {
                     <td className="td-solved">
                       <span className="solved-badge">
                         <CheckCircle2 size={13} />
-                        {team.solved} / 10
+                        {team.solved}
+                        {team.partiallySolved ? ` (+${team.partiallySolved})` : ''}
                       </span>
                     </td>
                     <td className="td-penalty">
                       <span className="penalty-val">{team.penalty}m</span>
                     </td>
                     <td className="td-score">
-                      <strong className="score-val">{team.score.toLocaleString()}</strong>
+                      <strong className="score-val">{team.score.toFixed(2)}</strong>
                       <span className="score-unit">pts</span>
                     </td>
                     <td className="td-action">
@@ -339,10 +466,21 @@ export function Leaderboard() {
           <div className="leaderboard-table-footer">
             <div className="leaderboard-footer-left">
               <span className="telemetry-live-dot" />
-              <span>Simulated ranking feed · Updated every 60s in production stream</span>
+              <span>
+                Scoreboard data sourced from{' '}
+                <a
+                  href="https://csacademy.com/ieeextreme20/scoreboard/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="leaderboard-attribution-link"
+                >
+                  CS Academy <ExternalLink size={10} />
+                </a>{' '}
+                (IEEEXtreme 20.0 Official Scoring Engine)
+              </span>
             </div>
             <div className="leaderboard-footer-right">
-              <span>IEEE XTREME 3.0 / Live Scoring Engine</span>
+              <span>IEEE XTREME 3.0 / RUSL Scoring Engine</span>
             </div>
           </div>
         </div>
@@ -354,7 +492,9 @@ export function Leaderboard() {
           </div>
           <h4>No matching teams found</h4>
           <p>
-            No teams matched "<strong>{searchQuery}</strong>" in the {activeCategory === 'world' ? 'World' : activeCategory === 'island' ? 'Island' : 'University'} ranking category.
+            No teams matched "<strong>{searchQuery}</strong>" in the{' '}
+            {activeCategory === 'world' ? 'World' : activeCategory === 'island' ? 'Island' : 'University'}{' '}
+            ranking category.
           </p>
           <button
             type="button"
@@ -390,7 +530,13 @@ export function Leaderboard() {
 
             <div className="modal-header">
               <div className="modal-topline">
-                <span className="modal-demo-tag">SIMULATED TEAM PROFILE</span>
+                <span className="modal-demo-tag">
+                  {selectedTeam.isRajarata
+                    ? 'RAJARATA TEAM PROFILE'
+                    : selectedTeam.isSriLanka
+                    ? 'SRI LANKA TEAM PROFILE'
+                    : 'GLOBAL TEAM PROFILE'}
+                </span>
                 <span className="modal-country-tag">
                   <MapPin size={12} /> {selectedTeam.country} ({selectedTeam.countryCode})
                 </span>
@@ -405,7 +551,9 @@ export function Leaderboard() {
             <div className="modal-stats-grid">
               <div className="modal-stat-card">
                 <span className="stat-label">World Rank</span>
-                <span className="stat-value stat-value--cyan">#{selectedTeam.worldRank}</span>
+                <span className="stat-value stat-value--cyan">
+                  {selectedTeam.worldRank ? `#${selectedTeam.worldRank}` : '—'}
+                </span>
               </div>
               <div className="modal-stat-card">
                 <span className="stat-label">Island Rank</span>
@@ -422,7 +570,7 @@ export function Leaderboard() {
               <div className="modal-stat-card">
                 <span className="stat-label">Total Score</span>
                 <span className="stat-value stat-value--gold">
-                  {selectedTeam.score.toLocaleString()} <small>pts</small>
+                  {selectedTeam.score.toFixed(2)} <small>pts</small>
                 </span>
               </div>
             </div>
@@ -431,35 +579,45 @@ export function Leaderboard() {
             <div className="modal-problems-section">
               <div className="modal-section-title">
                 <CheckCircle2 size={16} />
-                <h4>Solved Challenge Breakdown ({selectedTeam.solvedProblems.length} Solved)</h4>
+                <h4>
+                  Challenge Breakdown ({selectedTeam.solvedProblems.length} Tasks Recorded)
+                </h4>
               </div>
 
-              <div className="modal-problems-list">
-                {selectedTeam.solvedProblems.map((p) => (
-                  <div className="problem-item" key={p.id}>
-                    <div className="problem-item__code">
-                      <span className="problem-code-badge">{p.id}</span>
-                      <div className="problem-meta">
-                        <span className="problem-name">{p.name}</span>
-                        <span className="problem-time">
-                          <Clock size={11} /> Solved at {p.time}
+              {selectedTeam.solvedProblems.length > 0 ? (
+                <div className="modal-problems-list">
+                  {selectedTeam.solvedProblems.map((p) => (
+                    <div className="problem-item" key={p.id}>
+                      <div className="problem-item__code">
+                        <span className="problem-code-badge">{p.id}</span>
+                        <div className="problem-meta">
+                          <span className="problem-name">{p.name}</span>
+                          <span className="problem-time">
+                            <Clock size={11} /> Solved at {p.time}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="problem-item__points">
+                        <span className="problem-points-val">
+                          {p.points > 0 ? `+${p.points}` : '0.0'} pts
+                        </span>
+                        <span className="problem-attempts">
+                          {p.attempts} {p.attempts === 1 ? 'attempt' : 'attempts'}
                         </span>
                       </div>
                     </div>
-                    <div className="problem-item__points">
-                      <span className="problem-points-val">+{p.points}</span>
-                      <span className="problem-attempts">
-                        {p.attempts} {p.attempts === 1 ? 'attempt' : 'attempts'}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="no-problems-note" style={{ color: '#94a3b8', fontSize: '13px' }}>
+                  No submission task logs recorded yet for this team.
+                </p>
+              )}
             </div>
 
             <div className="modal-footer">
               <span className="modal-footer-note">
-                RUSLXTREME 3.0 Demo Telemetry · Real-time socket stream ready
+                Official CS Academy Telemetry · Contest ID #133706
               </span>
               <button
                 type="button"

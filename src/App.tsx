@@ -325,7 +325,7 @@ function App() {
 
         <section className="section section--score" id="leaderboard">
           <div className="shell-width">
-            <div className="section-topline"><div className="section-index">04 <span>/</span> RESULTS</div><StatusPill tone="live">Live Leaderboard (Demo Mode)</StatusPill></div>
+            <div className="section-topline"><div className="section-index">04 <span>/</span> RESULTS</div><StatusPill tone="live">Live Scoreboard</StatusPill></div>
             <div className="score-layout">
               <SectionHeading
                 eyebrow="Live leaderboard"
@@ -333,7 +333,7 @@ function App() {
                 copy="Track the mission progress. Discover the teams leading the competition across World, Island, and University rankings."
               />
               <div className="score-legend">
-                <span><i className="legend-dot legend-dot--cyan" />Simulated Stream</span>
+                <span><i className="legend-dot legend-dot--cyan" />CS Academy Stream</span>
                 <span><i className="legend-dot legend-dot--purple" />Three-Tier Rankings</span>
               </div>
             </div>

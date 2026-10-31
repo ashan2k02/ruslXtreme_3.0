@@ -1,29 +1,13 @@
-export type LeaderboardCategory = 'world' | 'island' | 'university'
+export type {
+  LeaderboardCategory,
+  LeaderboardTeam,
+  SolvedProblem,
+  ConnectionStatus,
+  ScoreboardState,
+  ScoreboardPayload,
+} from '../types/leaderboard'
 
-export interface SolvedProblem {
-  id: string
-  name: string
-  points: number
-  time: string
-  attempts: number
-}
-
-export interface LeaderboardTeam {
-  teamId: string
-  teamName: string
-  score: number
-  solved: number
-  penalty: number // in minutes
-  country: string
-  countryCode: string
-  university: string
-  isSriLanka: boolean
-  isRajarata: boolean
-  worldRank: number
-  islandRank?: number
-  universityRank?: number
-  solvedProblems: SolvedProblem[]
-}
+import type { LeaderboardCategory, LeaderboardTeam } from '../types/leaderboard'
 
 // Fictional demo dataset for competition preview.
 // Clearly marked as simulated demo data. Real API streaming can replace this dataset seamlessly.
